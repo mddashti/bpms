@@ -1,5 +1,5 @@
 <?php
-namespace Bpms;
+namespace Niyam\Bpms;
 
 use Illuminate\Support\ServiceProvider;
 

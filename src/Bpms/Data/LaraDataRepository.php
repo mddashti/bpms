@@ -1,4 +1,4 @@
-<?php namespace Bpms\Data;
+<?php namespace Niyam\Bpms\Data;
 
 
 class LaraDataRepository implements DataRepositoryInterface

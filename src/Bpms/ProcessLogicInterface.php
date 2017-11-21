@@ -1,4 +1,4 @@
-<?php namespace Bpms;
+<?php namespace Niyam\Bpms;
 
 interface ProcessLogicInterface
 {

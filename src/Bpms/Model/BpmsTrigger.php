@@ -1,6 +1,6 @@
 <?php
 
-namespace Bpms\Model;
+namespace Niyam\Niyam\Bpms\Model;
 
 use Illuminate\Database\Eloquent\Model;
 
