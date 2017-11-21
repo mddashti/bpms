@@ -17,7 +17,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Niyam\\BPMS": "src/"
+            "Niyam\\BPMS\\": "src/"
         }
     },
     "extra": {
