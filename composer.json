@@ -3,21 +3,19 @@
     "description": "A simple BPMN Library.",
     "keywords": ["bpms", "niyam", "workflow"],
     "license": "MIT",
-    "authors": [
-        {
-            "name": "David Dashti",
-            "email": "mddashti@gmail.com"
-        }
-    ],
+    "authors": [{
+        "name": "David Dashti",
+        "email": "mddashti@gmail.com"
+    }],
     "require": {
         "php": ">=5.4",
         "illuminate/database": "~5.4",
         "nesbot/carbon": "*"
     },
-	"require-dev": {
-		"phpunit/phpunit": "5.2.*"
+    "require-dev": {
+        "phpunit/phpunit": "5.2.*"
     },
-	"autoload": {
+    "autoload": {
         "psr-4": {
             "Niyam\\BPMS": "src/"
         }
@@ -25,7 +23,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Niyam\\BPMS\\BPMSServiceProvider"
+                "Niyam\\BPMS\\ServiceProvider"
             ]
         }
     }
