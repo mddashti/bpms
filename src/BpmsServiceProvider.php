@@ -12,6 +12,7 @@ class BpmsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        //load migrations
         $this->registerMigrations();
     }
 
