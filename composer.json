@@ -17,13 +17,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Niyam\\BPMS\\": "src/"
+            "Niyam\\Bpms\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Niyam\\BPMS\\ServiceProvider"
+                "Niyam\\Bpms\\BpmsServiceProvider"
             ]
         }
     },
