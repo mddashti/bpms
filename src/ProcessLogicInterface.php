@@ -6,7 +6,7 @@ interface ProcessLogicInterface
         CONFIG_FILTER_DUPLICATE_CASE = true,
         CONFIG_FILTER_CREATE_UNIQUE_PROCESS = true,
         CONFIG_NEXT_PREVIEW = false,
-        CONFIG_RETURN_ARRAY = true,
+        CONFIG_RETURN_ARRAY = false,
         CONFIG_BOOT_ELOQUENT = false,
         CONFIG_BOOT_DATABASE = 'pousha_workflow',
         CONFIG_BOOT_USERNAME = 'root',

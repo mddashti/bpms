@@ -1,17 +1,11 @@
 <?php namespace Niyam\Bpms;
 
-// use Finite\StateMachine\StateMachine;
-// use Finite\State\State;
-// use Finite\State\StateInterface;
-// use Finite\StatefulInterface;
+
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\DomCrawler\Crawler;
 use Niyam\Bpms\Data\DataRepositoryInterface;
 use Carbon\Carbon;
-use Niyam\Bpms\ProcessLogic;
-use Niyam\Bpms\CustomBoot;
 
-//require_once(APPPATH . 'libraries/Bpms1_0/ProcessLogicInterface.php');
 
 class ProcessLogic implements ProcessLogicInterface
 {
@@ -30,8 +24,6 @@ class ProcessLogic implements ProcessLogicInterface
     private $state;
 
     private $parts;
-
-    // private $states;
 
     private $transitions;
 
