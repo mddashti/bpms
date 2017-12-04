@@ -10,6 +10,6 @@ class BpmsGate extends Model
     
     public function workflow()
     {
-        return $this->belongsTo('Bpms\Model\BpmsWorkflow');
+        return $this->belongsTo(BpmsWorkflow::class);
     }
 }

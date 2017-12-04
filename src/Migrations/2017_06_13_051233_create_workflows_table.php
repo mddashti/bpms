@@ -15,18 +15,19 @@ class CreateWorkflowsTable extends Migration
     {
         Schema::create('bpms_workflows', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('ws_id')->nullable();
             $table->string('name');
-            $table->string('wid');
-            $table->text('wbody');
+            $table->string('wid')->nullable();
+            $table->text('wxml');
             $table->longText('wsvg')->nullable();
             $table->integer('user_id');
             $table->integer('type')->nullable();
             $table->string('status')->default('created');
             $table->string('state')->nullable();
             $table->boolean('is_parsed')->default(false);
+            $table->text('description')->nullable();
             $table->text('options')->nullable();
             $table->timestamps();
-            
         });
     }
 

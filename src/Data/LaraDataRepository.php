@@ -16,7 +16,9 @@ class LaraDataRepository implements DataRepositoryInterface
 
     public function findEntities($entity, $predicate, $columns = null)
     {
-        return (new $entity())->where($predicate)->get($columns);
+        if($predicate)
+            return (new $entity())->where($predicate)->get($columns);
+        return (new $entity())->get($columns);
     }
 
     public function findEntityByOrder($entity, $predicate, $field, $order)
@@ -31,7 +33,7 @@ class LaraDataRepository implements DataRepositoryInterface
 
     public function findCasesByMixed($predicate, $columns, $field, $order, $skip, $limit)
     {
-        return \Bpms\Model\WorkflowCase::join('workflows', 'workflows.id', '=', 'workflow_cases.ws_pro_id')->where($predicate)->skip($skip)->take($limit)->orderby($field, $order)->get($columns);
+        return \Bpms\Model\BpmsCase::join('workflows', 'workflows.id', '=', 'workflow_cases.ws_pro_id')->where($predicate)->skip($skip)->take($limit)->orderby($field, $order)->get($columns);
     }
 
     public function findEntityByRandom($entity, $predicate)
@@ -60,16 +62,16 @@ class LaraDataRepository implements DataRepositoryInterface
         if ($create) {
             switch ($entity) {
                 case DataRepositoryInterface::TABLE_PROCESS_TRANSITION:
-                    return \Bpms\Model\BpmsTransition::updateOrCreate($predicate, $data)->id;
+                    return \Niyam\Bpms\Model\BpmsTransition::updateOrCreate($predicate, $data)->id;
                     break;
                 case DataRepositoryInterface::TABLE_PROCESS_STATE:
-                    return \Bpms\Model\BpmsState::updateOrCreate($predicate, $data)->id;
+                    return \Niyam\Bpms\Model\BpmsState::updateOrCreate($predicate, $data)->id;
                     break;
                 case DataRepositoryInterface::TABLE_PROCESS_GATE:
-                    return \Bpms\Model\BpmsGate::updateOrCreate($predicate, $data)->id;
+                    return \Niyam\Bpms\Model\BpmsGate::updateOrCreate($predicate, $data)->id;
                     break;
                 case DataRepositoryInterface::TABLE_PROCESS_META:
-                    return \Bpms\Model\BpmsMeta::updateOrCreate($predicate, $data)->id;
+                    return \Niyam\Bpms\Model\BpmsMeta::updateOrCreate($predicate, $data)->id;
                     break;
                 default:
                     return;
@@ -92,6 +94,7 @@ class LaraDataRepository implements DataRepositoryInterface
     }
 
     public function deleteNotIn($entity, $predicate, $to_keep)
-    { (new $entity())::where($predicate)->whereNotIn('id', $to_keep)->delete();
+    {
+        return (new $entity())::where($predicate)->whereNotIn('id', $to_keep)->delete();
     }
 }

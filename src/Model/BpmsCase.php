@@ -16,21 +16,21 @@ class BpmsCase extends Model
 
     public function parts()
     {
-        return $this->hasMany('Bpms\Model\BpmsCasePart', 'case_id');
+        return $this->hasMany(BpmsCasePart::class, 'case_id');
     }
 
     public function workflow()
     {
-        return $this->belongsTo('Bpms\Model\BpmsWorkflow', 'ws_pro_id');
+        return $this->belongsTo(BpmsWorkflow::class, 'ws_pro_id');
     }
 
     public function activities()
     {
-        return $this->hasMany('Bpms\Model\BpmsActivity', 'case_id');
+        return $this->hasMany(BpmsActivity::class, 'case_id');
     }
 
     public function metas()
     {
-        return $this->hasMany('Bpms\Model\BpmsMeta', 'case_id');
+        return $this->hasMany(BpmsMeta::class, 'case_id');
     }
 }

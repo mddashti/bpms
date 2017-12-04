@@ -15,18 +15,18 @@ interface DataRepositoryInterface
     //  TABLE_PROCESS = 'plugins';
 
     const
-    TABLE_PROCESS_STATE = 'Bpms\Model\BpmsState',
-    TABLE_PROCESS_TRANSITION = 'Bpms\Model\BpmsTransition',
-    TABLE_PROCESS_META = 'Bpms\Model\BpmsMeta',
-    TABLE_PROCESS_GATE = 'Bpms\Model\BpmsGate',
-    TABLE_PROCESS_CASE = 'Bpms\Model\BpmsCase',
-    TABLE_PROCESS_PART = 'Bpms\Model\BpmsCasePart',
-    TABLE_PROCESS_FAKEPART = 'Bpms\Model\BpmsPart',
-    TABLE_PROCESS_TYPE = 'Bpms\Model\BpmsType',
-    TABLE_PROCESS_ACTIVITY = 'Bpms\Model\BpmsActivity',
-    TABLE_PROCESS = 'Bpms\Model\BpmsWorkflow',
-    TABLE_PROCESS_FORM = 'Bpms\Model\BpmsForm',
-    TABLE_PROCESS_TRIGGER = 'Bpms\Model\BpmsTrigger';    
+    TABLE_PROCESS_STATE = 'Niyam\Bpms\Model\BpmsState',
+    TABLE_PROCESS_TRANSITION = 'Niyam\Bpms\Model\BpmsTransition',
+    TABLE_PROCESS_META = 'Niyam\Bpms\Model\BpmsMeta',
+    TABLE_PROCESS_GATE = 'Niyam\Bpms\Model\BpmsGate',
+    TABLE_PROCESS_CASE = 'Niyam\Bpms\Model\BpmsCase',
+    TABLE_PROCESS_PART = 'Niyam\Bpms\Model\BpmsCasePart',
+    TABLE_PROCESS_FAKEPART = 'Niyam\Bpms\Model\BpmsPart',
+    TABLE_PROCESS_TYPE = 'Niyam\Bpms\Model\BpmsType',
+    TABLE_PROCESS_ACTIVITY = 'Niyam\Bpms\Model\BpmsActivity',
+    TABLE_PROCESS = 'Niyam\Bpms\Model\BpmsWorkflow',
+    TABLE_PROCESS_FORM = 'Niyam\Bpms\Model\BpmsForm',
+    TABLE_PROCESS_TRIGGER = 'Niyam\Bpms\Model\BpmsTrigger';    
 
     //Template
     // const

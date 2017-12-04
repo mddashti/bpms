@@ -14,7 +14,7 @@ class BpmsMeta extends Model
 
     public function case()
     {
-        $this->belongsTo('Bpms\Model\BpmsCase', 'case_id');
+        $this->belongsTo(BpmsCase::class, 'case_id');
     }
 
 }

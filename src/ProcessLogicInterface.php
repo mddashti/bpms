@@ -4,7 +4,15 @@ interface ProcessLogicInterface
 {
     const
         CONFIG_FILTER_DUPLICATE_CASE = true,
-        CONFIG_NEXT_PREVIEW = false;
+        CONFIG_FILTER_CREATE_UNIQUE_PROCESS = true,
+        CONFIG_NEXT_PREVIEW = false,
+        CONFIG_RETURN_ARRAY = true,
+        CONFIG_BOOT_ELOQUENT = false,
+        CONFIG_BOOT_DATABASE = 'pousha_workflow',
+        CONFIG_BOOT_USERNAME = 'root',
+        CONFIG_BOOT_PASSWORD = '';
+
+
 
     const
         POSITION_START = 0,
@@ -119,13 +127,15 @@ interface ProcessLogicInterface
 
     public function getCases($predicate, $filter = null);
 
-    public function createProcess($title, $wid, $userId, $type = null, $newType = null, $wbody = null, $wsvg = null);
+    //public function createProcess($title, $wid, $userId, $ws_id = null, $type = null, $newType = null, $wbody = null, $wsvg = null, $opts = null);
+    
+    public function createWorkflow($inputArray);    
 
-    public function updateProcess($predicate, $data);
+    public function updateWorkflow($predicate, $data);
 
-    public function deleteProcess($predicate);
+    public function deleteWorkflow($predicate);
 
-    public function getWorkflows($predicate);
+    public function getWorkflows($predicate = null, $columns = null);
 
     public function getWorkflowTypes($predicate);
 
