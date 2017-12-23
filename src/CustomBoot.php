@@ -11,9 +11,9 @@ class CustomBoot
         $capsule->addConnection([
             'driver' => 'mysql',
             'host' => 'localhost',
-            'database' => ProcessLogicInterface::CONFIG_BOOT_DATABASE,
-            'username' => ProcessLogicInterface::CONFIG_BOOT_USERNAME,
-            'password' => ProcessLogicInterface::CONFIG_BOOT_PASSWORD,
+            'database' => ProcessLogic::CONFIG_BOOT_DATABASE,
+            'username' => ProcessLogic::CONFIG_BOOT_USERNAME,
+            'password' => ProcessLogic::CONFIG_BOOT_PASSWORD,
             'charset' => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix' => '',

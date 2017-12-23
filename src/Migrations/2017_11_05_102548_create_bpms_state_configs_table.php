@@ -16,10 +16,10 @@ class CreateBpmsStateConfigsTable extends Migration
         Schema::create('bpms_state_configs', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('state_id');
-            $table->integer('form_id');            
-            $table->integer('trigger_id');
-            $table->integer('run_type');
-            $table->string('condition');            
+            $table->integer('form_id')->nullable();            
+            $table->integer('trigger_id')->nullable();
+            $table->integer('run_type')->nullable();
+            $table->string('condition')->nullable();            
             $table->text('options')->nullable();            
             $table->timestamps();
             $table->softDeletes();	 

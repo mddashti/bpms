@@ -9,15 +9,25 @@ class LaraDataRepository implements DataRepositoryInterface
         return (new $entity())->find($id);
     }
 
-    public function findEntity($entity, $predicate)
+    public function findEntity($entity, $predicate, $columns = null, $with = null)
     {
-        return (new $entity())->where($predicate)->first();
+        if ($with)
+            return (new $entity())->with($with)->where($predicate)->get($columns)->first();
+        return (new $entity())->where($predicate)->get($columns)->first();
+
     }
 
-    public function findEntities($entity, $predicate, $columns = null)
+    public function findEntities($entity, $predicate, $columns = null, $with = null)
     {
-        if($predicate)
+        if ($predicate && $with)
+            return (new $entity())->with($with)->where($predicate)->get($columns);
+
+        if ($predicate && !$with)
             return (new $entity())->where($predicate)->get($columns);
+
+        if (!$predicate && $with)
+            return (new $entity())->with($with)->get($columns);
+
         return (new $entity())->get($columns);
     }
 
@@ -61,17 +71,29 @@ class LaraDataRepository implements DataRepositoryInterface
     {
         if ($create) {
             switch ($entity) {
-                case DataRepositoryInterface::TABLE_PROCESS_TRANSITION:
+                case DataRepositoryInterface::BPMS_TRANSITION:
                     return \Niyam\Bpms\Model\BpmsTransition::updateOrCreate($predicate, $data)->id;
                     break;
-                case DataRepositoryInterface::TABLE_PROCESS_STATE:
+                case DataRepositoryInterface::BPMS_STATE:
                     return \Niyam\Bpms\Model\BpmsState::updateOrCreate($predicate, $data)->id;
                     break;
-                case DataRepositoryInterface::TABLE_PROCESS_GATE:
+                case DataRepositoryInterface::BPMS_GATE:
                     return \Niyam\Bpms\Model\BpmsGate::updateOrCreate($predicate, $data)->id;
                     break;
-                case DataRepositoryInterface::TABLE_PROCESS_META:
+                case DataRepositoryInterface::BPMS_META:
                     return \Niyam\Bpms\Model\BpmsMeta::updateOrCreate($predicate, $data)->id;
+                    break;
+                case DataRepositoryInterface::BPMS_STATE_CONFIG:
+                    return \Niyam\Bpms\Model\BpmsStateConfig::updateOrCreate($predicate, $data)->id;
+                    break;
+                case DataRepositoryInterface::BPMS_FORM:
+                    return \Niyam\Bpms\Model\BpmsForm::updateOrCreate($predicate, $data)->id;
+                    break;
+                case DataRepositoryInterface::BPMS_TRIGGER:
+                    return \Niyam\Bpms\Model\BpmsTrigger::updateOrCreate($predicate, $data)->id;
+                    break;
+                case DataRepositoryInterface::BPMS_FETCH:
+                    return \Niyam\Bpms\Model\BpmsFetch::updateOrCreate($predicate, $data)->id;
                     break;
                 default:
                     return;
@@ -84,6 +106,7 @@ class LaraDataRepository implements DataRepositoryInterface
         if (isset($data['system_options'])) {
             $data['system_options'] = json_encode($data['system_options']);
         }
+
         return (new $entity())->where($predicate)->update($data);
     }
 

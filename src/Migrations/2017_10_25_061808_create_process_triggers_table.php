@@ -17,7 +17,7 @@ class CreateProcessTriggersTable extends Migration
             $table->increments('id');
             $table->integer('ws_pro_id');
             $table->string('title')->unique();
-            $table->string('description');
+            $table->string('description')->nullable();
             $table->text('content');
             $table->integer('trigger_type');
             $table->text('options')->nullable();

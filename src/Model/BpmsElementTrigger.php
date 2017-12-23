@@ -6,5 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class BpmsElementTrigger extends Model
 {
-    //
+    protected $guarded = ['id'];
+
 }

@@ -3,9 +3,12 @@
 namespace Niyam\Bpms\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class BpmsStateConfig extends Model
 {
+    use SoftDeletes;
     protected $guarded = ['id'];
         
     protected $casts = [
@@ -14,6 +17,10 @@ class BpmsStateConfig extends Model
 
     public function state()
     {
-        $this->belongsTo(BpmsState::class, 'state_id');
+        return $this->belongsTo(BpmsState::class, 'state_id');
+    }
+    public function form()
+    {
+        return $this->belongsTo(BpmsForm::class, 'form_id');
     }
 }

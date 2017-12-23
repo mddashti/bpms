@@ -3,9 +3,13 @@
 namespace Niyam\Bpms\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class BpmsTrigger extends Model
 {
+    use SoftDeletes;
+
     protected $guarded = ['id'];
     
     protected $casts = [

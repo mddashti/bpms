@@ -17,9 +17,9 @@ class CreateProcessFormsTable extends Migration
             $table->increments('id');
             $table->integer('ws_pro_id');
             $table->string('title')->unique();
-            $table->string('description');
+            $table->string('description')->nullable();
             $table->text('content_html');
-            $table->text('content_js');
+            $table->text('content_js')->nullable();
             $table->text('options')->nullable();            
             $table->timestamps();
             $table->softDeletes();	                         

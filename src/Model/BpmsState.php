@@ -3,12 +3,13 @@
 namespace Niyam\Bpms\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use Niyam\Bpms\Model\BpmsForm;
 
 class BpmsState extends Model
 {
     protected $guarded = ['id'];
      
-    protected $visible = ['id','state','text'];
+    protected $visible = ['id','wid','text'];
      
     protected $casts = [
         'options' => 'array',
@@ -27,6 +28,11 @@ class BpmsState extends Model
     public function stateConfigs()
     {
         return $this->hasMany(BpmsStateConfig::class, 'state_id');
+    }
+
+    public function forms()
+    {
+        return $this->hasMany(BpmsForm::class, 'form_id');
     }
 
     public function startTransitions()

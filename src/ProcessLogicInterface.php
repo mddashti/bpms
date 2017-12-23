@@ -3,18 +3,6 @@
 interface ProcessLogicInterface
 {
     const
-        CONFIG_FILTER_DUPLICATE_CASE = true,
-        CONFIG_FILTER_CREATE_UNIQUE_PROCESS = true,
-        CONFIG_NEXT_PREVIEW = false,
-        CONFIG_RETURN_ARRAY = false,
-        CONFIG_BOOT_ELOQUENT = false,
-        CONFIG_BOOT_DATABASE = 'pousha_workflow',
-        CONFIG_BOOT_USERNAME = 'root',
-        CONFIG_BOOT_PASSWORD = '';
-
-
-
-    const
         POSITION_START = 0,
         POSITION_MIDDLE = 1,
         POSITION_END = 2;
@@ -128,8 +116,8 @@ interface ProcessLogicInterface
     public function getCases($predicate, $filter = null);
 
     //public function createProcess($title, $wid, $userId, $ws_id = null, $type = null, $newType = null, $wbody = null, $wsvg = null, $opts = null);
-    
-    public function createWorkflow($inputArray);    
+
+    public function createWorkflow($inputArray);
 
     public function updateWorkflow($predicate, $data);
 
@@ -170,14 +158,23 @@ interface ProcessLogicInterface
     //'users' => array_of_user_id, 
     //'forms' => array_of_form_id,
     //'form' => form_id will be added to forms option
+
+    //'form_condition' => 
+    //'trigger_condition' => 
     //Add 'back' => true to enable back on state!
-    //Add 'name' => name_of_user, this property is used when you set type to META_TYPE_USER, currently is used for Pousha
+    //Add 'name' => name_of_user, this property is used when you set type to META_TYPE_USER, currently is used for API access
 
     public function setStateMeta($stateWID, $data);
 
     public function setTransitionMeta($data);
 
-    public function getStateMeta($stateWID);
+
+    //return data
+    //back, forms, users, type (meta_type) ,value (meta_value), 
+    //name (used when user of library is system such as API access) 
+    //predicate ['form'=> 2]
+
+    public function getStateMeta($stateWID, $predicate = null, $columns = null);
 
     public function getTransitionMetaUI();
 
@@ -218,8 +215,12 @@ interface ProcessLogicInterface
     public function isStateDone($form);
 
     //Get state forms ordered by view_order
-    // public function getStateForms($stateWID, $type);
-
+    public function getStateForms($stateWID, $assigned = true, $columns = null);
+   
+    public function getStateFormCondition($InputArray);
+    public function deleteStateForm($inputArray);
+    public function getVariables($predicate = null, $columns = null);
+    
     // public function updateStateForm($stateWID, $predicate, $data);
 
     // public function addStateForm($stateWID, $data);    
@@ -252,6 +253,10 @@ interface ProcessLogicInterface
     public function updateForm($predicate, $data);
 
     public function deleteForm($predicate);
+
+    public function deleteWorkflowEntity($entity, $predicate, $check = true);
+
+    public function getWorkflowEntities($entity, $predicate, $columns = null, $with = null);
 }
 
 

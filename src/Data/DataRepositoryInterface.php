@@ -2,52 +2,31 @@
 
 interface DataRepositoryInterface
 {
-    //GIS Config
-    // const
-    //  TABLE_PROCESS_STATE = 'bpms_task',
-    //  TABLE_PROCESS_TRANSITION = 'bpms_transitions',
-    //  TABLE_PROCESS_META = 'bpms_metas',
-    //  TABLE_PROCESS_GATE = 'bpms_gateway',
-    //  TABLE_PROCESS_CASE = 'bpms_cases',
-    //  TABLE_PROCESS_PART = 'bpms_cases_parts',
-    //  TABLE_PROCESS_FAKEPART = 'bpms_parts',
-    //  TABLE_PROCESS_ACTIVITY = 'bpms_cases_activities',
-    //  TABLE_PROCESS = 'plugins';
-
     const
-    TABLE_PROCESS_STATE = 'Niyam\Bpms\Model\BpmsState',
-    TABLE_PROCESS_TRANSITION = 'Niyam\Bpms\Model\BpmsTransition',
-    TABLE_PROCESS_META = 'Niyam\Bpms\Model\BpmsMeta',
-    TABLE_PROCESS_GATE = 'Niyam\Bpms\Model\BpmsGate',
-    TABLE_PROCESS_CASE = 'Niyam\Bpms\Model\BpmsCase',
-    TABLE_PROCESS_PART = 'Niyam\Bpms\Model\BpmsCasePart',
-    TABLE_PROCESS_FAKEPART = 'Niyam\Bpms\Model\BpmsPart',
-    TABLE_PROCESS_TYPE = 'Niyam\Bpms\Model\BpmsType',
-    TABLE_PROCESS_ACTIVITY = 'Niyam\Bpms\Model\BpmsActivity',
-    TABLE_PROCESS = 'Niyam\Bpms\Model\BpmsWorkflow',
-    TABLE_PROCESS_FORM = 'Niyam\Bpms\Model\BpmsForm',
-    TABLE_PROCESS_TRIGGER = 'Niyam\Bpms\Model\BpmsTrigger';    
-
-    //Template
-    // const
-    // TABLE_PROCESS_STATE = 'workflow_states',
-    // TABLE_PROCESS_TRANSITION = 'workflow_transitions',
-    // TABLE_PROCESS_META = 'workflow_metas',
-    // TABLE_PROCESS_GATE = 'workflow_gates',
-    // TABLE_PROCESS_CASE = 'workflow_cases',
-    // TABLE_PROCESS_PART = 'workflow_case_parts',
-    // TABLE_PROCESS_FAKEPART = 'workflow_parts',
-    // TABLE_PROCESS_TYPE = 'workflow_types',
-    // TABLE_PROCESS_ACTIVITY = 'workflow_activities',
-    // TABLE_PROCESS = 'workflows';
-    // TABLE_PROCESS_STATE_FORM = 'process_state_forms';
-
+        BPMS_STATE = 'Niyam\Bpms\Model\BpmsState',
+        BPMS_TRANSITION = 'Niyam\Bpms\Model\BpmsTransition',
+        BPMS_META = 'Niyam\Bpms\Model\BpmsMeta',
+        BPMS_GATE = 'Niyam\Bpms\Model\BpmsGate',
+        BPMS_CASE = 'Niyam\Bpms\Model\BpmsCase',
+        BPMS_ELEMENT_TRIGGER = 'Niyam\Bpms\Model\BpmsElementTrigger',
+        BPMS_ELEMENT = 'Niyam\Bpms\Model\BpmsElement',
+        BPMS_FETCH = 'Niyam\Bpms\Model\BpmsFetch',
+        BPMS_STATE_CONFIG = 'Niyam\Bpms\Model\BpmsStateConfig',
+        BPMS_VARIABLE = 'Niyam\Bpms\Model\BpmsVariable',
+        BPMS_PART = 'Niyam\Bpms\Model\BpmsCasePart',
+        BPMS_FAKEPART = 'Niyam\Bpms\Model\BpmsPart',
+        BPMS_TYPE = 'Niyam\Bpms\Model\BpmsType',
+        BPMS_ACTIVITY = 'Niyam\Bpms\Model\BpmsActivity',
+        BPMS_WORKFLOW = 'Niyam\Bpms\Model\BpmsWorkflow',
+        BPMS_FORM = 'Niyam\Bpms\Model\BpmsForm',
+        BPMS_TRIGGER = 'Niyam\Bpms\Model\BpmsTrigger',
+        BPMS_VARIABLE_TYPE = 'Niyam\Bpms\Model\BpmsVariableType';
 
     public function getEntity($entity, $id);
 
-    public function findEntity($entity, $predicate);
+    public function findEntity($entity, $predicate, $columns = null, $with = null);
 
-    public function findEntities($entity, $predicate, $columns = null);
+    public function findEntities($entity, $predicate, $columns = null, $with = null);
 
     public function findEntityByOrder($entity, $predicate, $field, $order);
 
@@ -61,17 +40,14 @@ interface DataRepositoryInterface
 
     public function countEntity($entity, $predicate);
 
-    
+
     public function createEntity($entity, $data);
 
-   
+
     public function updateEntity($entity, $predicate, $data, $create = false);
-    
-   
+
+
     public function deleteEntity($entity, $predicate);
 
-    public function deleteNotIn($entity, $predicate,$toKeep);
-
-
-    
+    public function deleteNotIn($entity, $predicate, $toKeep);
 }

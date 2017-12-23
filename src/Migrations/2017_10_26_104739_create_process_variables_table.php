@@ -19,8 +19,8 @@ class CreateProcessVariablesTable extends Migration
             $table->string('name')->unique();
             $table->string('title');
             $table->integer('type_id');
-            $table->string('description');
-            $table->integer('fetch_id');
+            $table->string('description')->nullable();
+            $table->integer('fetch_id')->nullable();
             $table->boolean('is_global')->default(true);            
             $table->text('options')->nullable();
             $table->timestamps();

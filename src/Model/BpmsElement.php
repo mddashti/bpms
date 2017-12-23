@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class BpmsElement extends Model
 {
     protected $guarded = ['id'];
-    
+
     protected $casts = [
-            'options' => 'array',
+        'options' => 'array',
     ];
 
     public function form()
