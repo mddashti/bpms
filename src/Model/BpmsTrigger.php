@@ -20,4 +20,9 @@ class BpmsTrigger extends Model
     {
         return $this->belongsTo(BpmsWorkflow::class, 'ws_pro_id');
     }
+
+    public function element()
+    {
+        return $this->hasOne(BpmsElementTrigger::class, 'trigger_id');
+    }
 }

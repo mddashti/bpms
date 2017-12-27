@@ -8,6 +8,8 @@ use Niyam\Bpms\Model\BpmsForm;
 use Niyam\Bpms\Model\BpmsStateConfig;
 use Niyam\Bpms\Model\BpmsState;
 use Niyam\Bpms\Model\BpmsVariable;
+use Niyam\Bpms\Model\BpmsWorkflow;
+
 
 
 
@@ -242,7 +244,7 @@ class ProcessLogic implements ProcessLogicInterface
 
     public function setCaseOption($option, $value, $caseId = null)
     {
-        $caseId = $caseId ? $caseId : $this->id;
+        $caseId = $caseId ? : $this->id;
         $found = $this->dataRepo->getEntity(DataRepositoryInterface::BPMS_CASE, $caseId);
         $opts = $found->options;
 
@@ -641,6 +643,7 @@ class ProcessLogic implements ProcessLogicInterface
         }
     }
 
+    #region Override by user
     public function getCustomUsers($users_option)
     {
         //return [1,2,3,4,5,6,7,8,9,10];
@@ -650,6 +653,12 @@ class ProcessLogic implements ProcessLogicInterface
     {
         //return 'USERS_OPTION_TEXT';
     }
+
+    public function getCustomUserDisplayName($user_id)
+    {
+        return $user_id;
+    }
+    #endregion
 
     public function getAvailableTransitions($fromState = null, $columns = null)
     {
@@ -1062,8 +1071,6 @@ class ProcessLogic implements ProcessLogicInterface
 
     public function takePic()
     {
-        //$workflow = BpmsWorkflow::find($case -> ws_pro_id);
-
         if (!$this->workflow->wsvg) {
             return 'NaN';
         }
@@ -1091,20 +1098,20 @@ class ProcessLogic implements ProcessLogicInterface
         return $crawlerBase->html();
     }
 
-    public function getTransitionMeta($tid)
-    {
-        try {
-            if ($this->test == true || $this->baseTable == true) {
-                $m = $this->dataRepo->getEntity(DataRepositoryInterface::BPMS_TRANSITION, $tid)->meta;
-                return new ProcessResponse($m ? true : false, $m, 'OK');
-            } else {
-                $m = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_META, ['element_type' => 2, 'element_id' => $tid, 'case_id' => $this->id]);
-                return new ProcessResponse(true, $m->meta_value, 'OK');
-            }
-        } catch (\Exception $e) {
-            return new ProcessResponse(false, 'No condition is provided', 'OK');
-        }
-    }
+    // public function getTransitionMeta($tid)
+    // {
+    //     try {
+    //         if ($this->test == true || $this->baseTable == true) {
+    //             $m = $this->dataRepo->getEntity(DataRepositoryInterface::BPMS_TRANSITION, $tid)->meta;
+    //             return new ProcessResponse($m ? true : false, $m, 'OK');
+    //         } else {
+    //             $m = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_META, ['element_type' => 2, 'element_id' => $tid, 'case_id' => $this->id]);
+    //             return new ProcessResponse(true, $m->meta_value, 'OK');
+    //         }
+    //     } catch (\Exception $e) {
+    //         return new ProcessResponse(false, 'No condition is provided', 'OK');
+    //     }
+    // }
 
     public function getCaseId()
     {
@@ -1265,20 +1272,20 @@ class ProcessLogic implements ProcessLogicInterface
     {
         $from = $data['from'];
         $to = $data['to'];
-        $meta_value = $data['meta'];
+        $meta_value = $data['condition'];
 
         if (isset($data['meta_json'])) {
             $opts['meta_json'] = $data['meta_json'];
         }
 
         $order = $data['order'];
-        $gate = $data['gate'];
+        //$gate = $data['gate'];
         $predicate = ['ws_pro_id' => $this->wid, 'from_state' => $from, 'to_state' => $to];
 
 
         if ($this->test) {
             $predicate = ['ws_pro_id' => $this->wid, 'from_state' => $from, 'to_state' => $to];
-            $data = ['meta' => $meta_value, 'gate_wid' => $gate, 'order_transition' => $order];
+            $data = ['meta' => $meta_value, 'order_transition' => $order];
 
             if (isset($opts)) {
                 $data['options'] = $opts;
@@ -1288,7 +1295,7 @@ class ProcessLogic implements ProcessLogicInterface
         }
 
         $transition = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_TRANSITION, $predicate);
-        $predicate = ['case_id' => $this->id, 'element_name' => $gate, 'element_type' => 2, 'element_id' => $transition->id];
+        $predicate = ['case_id' => $this->id, 'element_type' => 2, 'element_id' => $transition->id];
         $data = ['meta_value' => $meta_value, 'meta_type' => 1];
 
         if (isset($opts)) {
@@ -1361,10 +1368,10 @@ class ProcessLogic implements ProcessLogicInterface
     //     return BpmsStateConfig::where($predicate)->get($columns);
     // }
 
-    public function getTransitionMetaUI()
-    {
-        return;
-    }
+    // public function getTransitionMetaUI()
+    // {
+    //     return;
+    // }
 
     public function updateStateOptions($stateWID, $caseId)
     {
@@ -1533,7 +1540,7 @@ class ProcessLogic implements ProcessLogicInterface
                 'case_id' => $caseId,
                 'title' => $title,
                 'task' => $activity->options['text'],
-                'user_id' => $activity->user_id != -1 ? $activity->user_id : $activity->options['users'],
+                'user_id' => $activity->user_id != -1 ? $this->getCustomUserDisplayName($activity->user_id) : $activity->options['users'],
                 'start_date' => $activity->created_at,
                 'end_date' => $activity->finished_at,
                 'duration' => Carbon::parse($activity->finished_at)->diffInMinutes(Carbon::parse($activity->created_at)),
@@ -1657,15 +1664,15 @@ class ProcessLogic implements ProcessLogicInterface
         return $this->wid;
     }
 
-    public function getCurrentStateStateMachine()
-    {
-        return $this->sm->getCurrentState()->getName();
-    }
+    // public function getCurrentStateStateMachine()
+    // {
+    //     return $this->sm->getCurrentState()->getName();
+    // }
 
-    public function isEndGate($gateWID)
-    {
-        return $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_GATE, ['wid' => $gateWID, 'ws_pro_id' => $this->getWID()])->is_end;
-    }
+    // public function isEndGate($gateWID)
+    // {
+    //     return $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_GATE, ['wid' => $gateWID, 'ws_pro_id' => $this->getWID()])->is_end;
+    // }
 
     public function setPart($state = null)
     {
@@ -1783,11 +1790,11 @@ class ProcessLogic implements ProcessLogicInterface
                 break;
 
             case ProcessLogicInterface::WORKFLOW_NO_META:
-                return ['state' => 'error', 'message' => 'No meta', 'meta' => $this->state];
+                return ['state' => 'error', 'message' => 'WORKFLOW_NO_META', 'meta' => $this->state];
                 break;
 
             case ProcessLogicInterface::WORKFLOW_PART_ISNULL:
-                return ['state' => 'error', 'message' => 'Part is null', 'meta' => $this->state, 'base' => $this->state];
+                return ['state' => 'error', 'message' => 'WORKFLOW_PART_ISNULL', 'meta' => $this->state, 'base' => $this->state];
                 break;
 
             case ProcessLogicInterface::WORKFLOW_WAIT_FOR_ANOTHER:
@@ -1799,6 +1806,8 @@ class ProcessLogic implements ProcessLogicInterface
 
             case ProcessLogicInterface::WORKFLOW_LONELY_PART:
                 return ['state' => 'error', 'message' => 'WORKFLOW_LONELY_PART'];
+            case ProcessLogicInterface::WORKFLOW_STATE_NOTFOUND:
+                return ['state' => 'error', 'message' => 'WORKFLOW_STATE_NOTFOUND'];
 
             default:
         }
@@ -1931,7 +1940,11 @@ class ProcessLogic implements ProcessLogicInterface
         //$checkAllTransitions = false;
         //$partEnded = false;
         //$partWorkflow = 0;
-        $next_type = $currentState->entity->next_type;
+        $next_type = $currentState->isSuccess ? $currentState->entity->next_type : null;
+
+        if (! $next_type)
+            return $this->saveChanges(ProcessLogicInterface::WORKFLOW_STATE_NOTFOUND);
+
 
         switch ($next_type) {
             // case "bpmn:ExclusiveGateway":
@@ -1941,14 +1954,14 @@ class ProcessLogic implements ProcessLogicInterface
             //     break;
 
             case "bpmn:ParallelGateway":
-                $isPartedBefore = $this->status == 'parted' ? true : false;
+                $isPartedBefore = $this->status == 'parted';
                 // $isEnd = (bool)$this -> isEndGate($currentState-> entity -> next_wid);
                 // $isPartCreated = $isEnd ? false : true;
                 $this->status = 'parted';
                 break;
 
             case "bpmn:InclusiveGateway":
-                $isPartedBefore = $this->status == 'parted' ? true : false;
+                $isPartedBefore = $this->status == 'parted';
                 //$checkAllTransitions = true;
                 $this->status = 'parted';
                 $isParellel = true;
@@ -1957,6 +1970,7 @@ class ProcessLogic implements ProcessLogicInterface
         }
 
         try {
+            $available = [];
             //$available =  $this -> sm -> getCurrentState() -> getTransitions();
             $tis = $this->getAvailableTransitions();
             foreach ($tis as $t) {
@@ -1991,7 +2005,6 @@ class ProcessLogic implements ProcessLogicInterface
                         
                     //if ($toGoTransition -> type == ProcessLogicInterface::TRANSITION_NORMAL || $toGoTransition -> type == ProcessLogicInterface::TRANSITION_OR_SPLIT) {
                     if ($next_type == "bpmn:ExclusiveGateway" || $next_type == "bpmn:InclusiveGateway") {
-                        $language = new ExpressionLanguage();
 
                         // $meta = $this -> getTransitionMeta($toGoId);
                         // if (!$meta -> isSuccess) {
@@ -2008,6 +2021,8 @@ class ProcessLogic implements ProcessLogicInterface
                         //$toGoCondition = $meta -> entity;
 
                         try {
+                            $language = new ExpressionLanguage();
+
                             if (!$vars = $this->getVars()) {
                                 $vars = isset($this->getCase()->options['vars']) ? $this->getCase()->options['vars'] : null;
                             }
@@ -2044,7 +2059,7 @@ class ProcessLogic implements ProcessLogicInterface
 
                 $toGoTransition = reset($available);
                 if (!$toGoTransition) {
-                    return;
+                    return $this->saveChanges(ProcessLogicInterface::WORKFLOW_NO_PATH);
                 }
 
                 //if ($toGoTransition -> type == ProcessLogicInterface::TRANSITION_AND_JOIN) {
@@ -2292,9 +2307,7 @@ class ProcessLogic implements ProcessLogicInterface
     public function addForm($data)
     {
         $data['ws_pro_id'] = $data['ws_pro_id'] ? : $this->wid;
-
         return BpmsForm::create($data)->id;
-        //return $this->dataRepo->createEntity(DataRepositoryInterface::BPMS_FORM, $predicate, $columns);
     }
 
     public function updateForm($predicate, $data)
@@ -2311,13 +2324,10 @@ class ProcessLogic implements ProcessLogicInterface
         return $this->dataRepo->deleteEntity(DataRepositoryInterface::BPMS_FORM, $predicate);
     }
 
-
-
-
     public function getStateForms($stateWID, $assigned = true, $columns = null)
     {
         $state = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $stateWID]);
-        $forms = $state->options['forms'];
+        $forms = isset($state->options['forms']) ? $state->options['forms']: null;
 
         if ($assigned && $forms) {
             $bpmsForms = BpmsForm::whereIn('id', $forms)->get($columns);
@@ -2338,10 +2348,6 @@ class ProcessLogic implements ProcessLogicInterface
 
 
     }
-
-
-
-
 
     public function getStateFormCondition($inputArray)
     {
@@ -2366,7 +2372,6 @@ class ProcessLogic implements ProcessLogicInterface
         $opts = $state->options;
         $forms = $opts['forms'];
 
-        //$forms = array_diff($forms, [$form_id]);
         $new_forms = [];
         foreach ($forms as $form) {
             if ($form != $form_id)
@@ -2376,7 +2381,6 @@ class ProcessLogic implements ProcessLogicInterface
         $opts['forms'] = $new_forms;
         $state->options = $opts;
         $state->save();
-
     }
 
     public function getVariables($predicate = null, $columns = null)
@@ -2387,10 +2391,24 @@ class ProcessLogic implements ProcessLogicInterface
         return BpmsVariable::where($predicate)->get($columns);
     }
 
+    public function getVariablesWithValue($predicate = null)
+    {
+        if ($predicate)
+            $vars = BpmsVariable::where($predicate)->get();
+        else
+            $vars = BpmsVariable::where(['ws_pro_id' => $this->wid])->get();
+
+        foreach ($vars as $var) {
+            $res[$var->name] = isset($var->options['default_value']) ? $var->options['default_value'] : 0;
+        }
+        return $res;
+    }
+
+
     public function deleteWorkflowEntity($entity, $predicate, $check = true)
     {
-        if ($result = $this->dataRepo->deleteEntity($entity, $predicate)){
-            return new ProcessResponse(true,null,'OK');
+        if ($result = $this->dataRepo->deleteEntity($entity, $predicate)) {
+            return new ProcessResponse(true, null, 'OK');
         }
     }
 
@@ -2399,127 +2417,33 @@ class ProcessLogic implements ProcessLogicInterface
         return $this->dataRepo->findEntities($entity, $predicate, $columns, $with);
     }
 
+    public function getGateConditions($gateWID, $workflow_id = null)
+    {
+        //if workflow is copy ???
 
+        $workflow_id = $workflow_id ? : $this->wid;
+        $workflow = BpmsWorkflow::findOrFail($workflow_id);
 
+        return $workflow->transitions()->where('gate_wid', $gateWID)->orderBy('order_transition')->get(['order_transition', 'meta', 'to_state']);
+    }
+    public function setGateConditions($gateWID, $data, $workflow_id = null)
+    {
+        $conditions = $data['conditions'];
+        $froms = $data['froms'];
+        foreach ($conditions as $condition) {
+            foreach ($froms as $from) {
+                $data = [
+                    'order' => $condition['order'],
+                    'from' => $from,
+                    'to' => $condition['to'],
+                    'condition' => $condition['condition'],
+                ];
 
+                $this->setTransitionMeta($data);
 
+            }
+        }
+    }
 
-    
-    // public function updateStateForm($stateWID, $predicate, $data)
-    // {
-    //     if (! isset($predicate['id'])) {
-    //         $state = $this -> dataRepo -> findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $stateWID]);
-    //         $predicate['state_id'] = $state -> id;
-    //     }
-        
-    //     return $this -> dataRepo -> updateEntity(DataRepositoryInterface::BPMS_STATE_FORM, $predicate, $data);
-    // }
-
-    // public function addStateForm($stateWID, $data)
-    // {
-    //     if (! isset($data['state_id'])) {
-    //         $state = $this -> dataRepo -> findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $stateWID]);
-    //         $data['state_id'] = $state -> id;
-    //     }
-       
-    //     $data['view_order'] = $this -> dataRepo -> countEntity(DataRepositoryInterface::BPMS_STATE_FORM, ['state_id' => $data['state_id'] ]) + 1;
-    //     return $this -> dataRepo -> createEntity(DataRepositoryInterface::BPMS_STATE_FORM, $data);
-    // }
-    
-    // public function deleteStateForm($stateWID, $predicate)
-    // {
-    //     if (! isset($predicate['id'])) {
-    //         $state = $this -> dataRepo -> findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $stateWID]);
-    //         $predicate['state_id'] = $state -> id;
-    //     }
-        
-    //     return $this -> dataRepo -> deleteEntity(DataRepositoryInterface::BPMS_STATE_FORM, $predicate);
-    // }
-
-    // public function getStateTriggers($stateWID, $type)
-    // {
-    //     $state = $this -> dataRepo -> findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $stateWID]);
-    //     if ($state) {
-    //         return $this -> dataRepo -> findEntitiesByOrder(DataRepositoryInterface::BPMS_STATE_TRIGGER, ['state_id' => $state -> id], 'run_order', 'asc');
-    //     }
-    // }
-    
-    // public function updateStateTrigger($stateWID, $predicate, $data)
-    // {
-    //     if (! isset($predicate['id'])) {
-    //         $state = $this -> dataRepo -> findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $stateWID]);
-    //         $predicate['state_id'] = $state -> id;
-    //     }
-    //     return $this -> dataRepo -> updateEntity(DataRepositoryInterface::BPMS_STATE_TRIGGER, $predicate, $data);
-    // }
-    
-    // public function addStateTrigger($stateWID, $data)
-    // {
-    //     if (! isset($data['state_id'])) {
-    //         $state = $this -> dataRepo -> findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $stateWID]);
-    //         $data['state_id'] = $state -> id;
-    //     }
-        
-    //     $data['run_order'] = $this -> dataRepo -> countEntity(DataRepositoryInterface::BPMS_STATE_TRIGGER, ['state_id' => $data['state_id'],'trigger_run_type' => $data['trigger_run_type']]) + 1;
-    //     return $this -> dataRepo -> createEntity(DataRepositoryInterface::BPMS_STATE_TRIGGER, $data);
-    // }
-    
-    // public function deleteStateTrigger($stateWID, $predicate)
-    // {
-    //     if (! isset($predicate['id'])) {
-    //         $state = $this -> dataRepo -> findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $stateWID]);
-    //         $predicate['state_id'] = $state -> id;
-    //     }
-        
-    //     return $this -> dataRepo -> deleteEntity(DataRepositoryInterface::BPMS_STATE_TRIGGER, $predicate);
-    // }
-
-    // public function getFormTriggers($stateWID, $type)
-    // {
-    // }
-    
-    // public function updateFormTrigger($statesWID, $predicate, $data)
-    // {
-    //     if (! isset($predicate['state_form_id'])) {
-    //         //$state = $this -> dataRepo -> findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $stateWID]);
-    //         //$predicate['state_id'] = $state -> id;
-    //     }
-    //     return $this -> dataRepo -> updateEntity(DataRepositoryInterface::BPMS_FORM_TRIGGER, $predicate, $data);
-    // }
-    
-    // public function addFormTrigger($stateWID, $data)
-    // {
-    //     if (! isset($data['state_form_id'])) {
-    //         $state = $this -> dataRepo -> findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $stateWID]);
-    //         //find form and generate state_form_ids
-    //     }
-        
-    //     $data['run_order'] = $this -> dataRepo -> countEntity(DataRepositoryInterface::BPMS_FORM_TRIGGER, ['state_form_id' => $data['state_form_id'], 'trigger_run_type' => $data['trigger_run_type'] ]) + 1;
-    //     return $this -> dataRepo -> createEntity(DataRepositoryInterface::BPMS_FORM_TRIGGER, $data);
-    // }
-    
-    // public function deleteFormTrigger($stateWID, $predicate)
-    // {
-    //     if (! isset($predicate['id'])) {
-    //         //$state = $this -> dataRepo -> findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $stateWID]);
-    //         //$predicate['state_id'] = $state -> id;
-    //     }
-        
-    //     return $this -> dataRepo -> deleteEntity(DataRepositoryInterface::BPMS_FORM_TRIGGER, $predicate);
-    // }
 }
 
-// class Document implements StatefulInterface
-// {
-//     private $state;
-
-//     public function setFiniteState($state)
-//     {
-//         $this->state = $state;
-//     }
-
-//     public function getFiniteState()
-//     {
-//         return $this->state;
-//     }
-// }

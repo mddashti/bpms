@@ -30,4 +30,9 @@ class BpmsForm extends Model
         return $this->hasMany(BpmsStateConfig::class, 'form_id');
 
     }
+
+    public function elementTriggers()
+    {
+        return $this->hasManyThrough(BpmsElementTrigger::class, BpmsElement::class, 'form_id', 'element_id');
+    }
 }

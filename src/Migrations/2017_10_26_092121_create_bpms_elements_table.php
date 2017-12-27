@@ -18,7 +18,7 @@ class CreateBpmsElementsTable extends Migration
             $table->integer('form_id');
             $table->string('element_name');
             $table->string('element_type');
-            $table->integer('variable_id');
+            $table->integer('variable_id')->nullable()->comment('این فیلد برای المانهای دارای تریگر باید خالی باشد');
             $table->text('options')->nullable();
             $table->timestamps();
             $table->softDeletes();	                                     

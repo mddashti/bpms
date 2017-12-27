@@ -75,7 +75,8 @@ interface ProcessLogicInterface
         WORKFLOW_BACKED = 20,
         WORKFLOW_ENDED_BEFORE = 21,
         WORKFLOW_LONELY_PART = 22,
-        WORKFLOW_MAYBE_LOCKED = 23;
+        WORKFLOW_MAYBE_LOCKED = 23,
+        WORKFLOW_STATE_NOTFOUND = 24;
 
 
     public function setCase($case, $baseTable = false);
@@ -147,7 +148,7 @@ interface ProcessLogicInterface
 
     public function takePic();
 
-    public function getTransitionMeta($tid);
+    // public function getTransitionMeta($tid);
 
     public function getSubProcessMeta($stateWID);
 
@@ -176,7 +177,7 @@ interface ProcessLogicInterface
 
     public function getStateMeta($stateWID, $predicate = null, $columns = null);
 
-    public function getTransitionMetaUI();
+    // public function getTransitionMetaUI();
 
     public function updateStateOptions($stateWID, $caseId);
 
@@ -194,9 +195,14 @@ interface ProcessLogicInterface
 
     public function getBaseState();
 
-    public function getCurrentStateStateMachine();
+    public function getGateConditions($gateWID, $workflow_id = null);
 
-    public function isEndGate($gateWID);
+    //$data=['conditions'=>[['condition' => 'A==1','to' => 'stateWID','order' => 1],...], 'froms'=>['stateWID', ...]]
+    public function setGateConditions($gateWID, $conditions, $workflow_id = null);
+
+    // public function getCurrentStateStateMachine();
+
+    // public function isEndGate($gateWID);
 
     public function setPart($partId = null);
 
@@ -216,10 +222,11 @@ interface ProcessLogicInterface
 
     //Get state forms ordered by view_order
     public function getStateForms($stateWID, $assigned = true, $columns = null);
-   
+
     public function getStateFormCondition($InputArray);
     public function deleteStateForm($inputArray);
     public function getVariables($predicate = null, $columns = null);
+    public function getVariablesWithValue($predicate = null);
     
     // public function updateStateForm($stateWID, $predicate, $data);
 
