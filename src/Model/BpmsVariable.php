@@ -17,7 +17,7 @@ class BpmsVariable extends Model
         return $this->belongsTo(BpmsWorkflow::class, 'ws_pro_id');
     }
 
-    public function fetchMethod()
+    public function fetch()
     {
         return $this->belongsTo(BpmsFetch::class, 'fetch_id');
     }
@@ -25,5 +25,15 @@ class BpmsVariable extends Model
     public function type()
     {
         return $this->belongsTo(BpmsVariableType::class, 'type_id');
+    }
+
+    public function element()
+    {
+        return $this->hasOne(BpmsElement::class, 'variable_id');
+    }
+
+    public function forms()
+    {
+        return $this->belongsToMany(BpmsForm::class, 'bpms_elements', 'variable_id', 'form_id')->withPivot('element_name', 'element_type');
     }
 }

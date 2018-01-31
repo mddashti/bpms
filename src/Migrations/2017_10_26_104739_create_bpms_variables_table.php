@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateProcessFormsTable extends Migration
+class CreateBpmsVariablesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,18 @@ class CreateProcessFormsTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms_forms', function (Blueprint $table) {
+        Schema::create('bpms_variables', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('ws_pro_id');
-            $table->string('title')->unique();
+            $table->string('name')->unique();
+            $table->string('title');
+            $table->integer('type_id');
             $table->string('description')->nullable();
-            $table->text('content_html');
-            $table->text('content_js')->nullable();
-            $table->text('options')->nullable();            
+            $table->integer('fetch_id')->nullable();
+            $table->boolean('is_global')->default(true);            
+            $table->json('options')->nullable();
             $table->timestamps();
-            $table->softDeletes();	                         
+            $table->softDeletes();	 
         });
     }
 
@@ -33,6 +35,6 @@ class CreateProcessFormsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bpms_forms');
+        Schema::dropIfExists('bpms_variables');
     }
 }

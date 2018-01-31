@@ -1,5 +1,7 @@
 <?php namespace Niyam\Bpms\Data;
 
+use Niyam\Bpms\Model\BpmsCase;
+
 
 class LaraDataRepository implements DataRepositoryInterface
 {
@@ -43,7 +45,7 @@ class LaraDataRepository implements DataRepositoryInterface
 
     public function findCasesByMixed($predicate, $columns, $field, $order, $skip, $limit)
     {
-        return \Bpms\Model\BpmsCase::join('workflows', 'workflows.id', '=', 'workflow_cases.ws_pro_id')->where($predicate)->skip($skip)->take($limit)->orderby($field, $order)->get($columns);
+        return BpmsCase::join('bpms_workflows', 'bpms_workflows.id', '=', 'bpms_cases.ws_pro_id')->where($predicate)->skip($skip)->take($limit)->orderby($field, $order)->get($columns);
     }
 
     public function findEntityByRandom($entity, $predicate)
@@ -51,21 +53,15 @@ class LaraDataRepository implements DataRepositoryInterface
         return (new $entity())->where($predicate)->inRandomOrder()->first();
     }
 
-
     public function countEntity($entity, $predicate)
     {
         return (new $entity())->where($predicate)->count();
     }
 
-
     public function createEntity($entity, $data)
     {
-        // if (isset($data['options'])) {
-        //     $data['options'] = json_encode($data['options']);
-        // }
         return (new $entity())->create($data)->id;
     }
-
 
     public function updateEntity($entity, $predicate, $data, $create = false)
     {
@@ -95,6 +91,15 @@ class LaraDataRepository implements DataRepositoryInterface
                 case DataRepositoryInterface::BPMS_FETCH:
                     return \Niyam\Bpms\Model\BpmsFetch::updateOrCreate($predicate, $data)->id;
                     break;
+                case DataRepositoryInterface::BPMS_VARIABLE:
+                    return \Niyam\Bpms\Model\BpmsVariable::updateOrCreate($predicate, $data)->id;
+                    break;
+                case DataRepositoryInterface::BPMS_CASE:
+                    return \Niyam\Bpms\Model\BpmsCase::updateOrCreate($predicate, $data)->id;
+                    break;
+                case DataRepositoryInterface::BPMS_ACTIVITY:
+                    return \Niyam\Bpms\Model\BpmsActivity::updateOrCreate($predicate, $data)->id;
+                    break;
                 default:
                     return;
             }
@@ -109,7 +114,6 @@ class LaraDataRepository implements DataRepositoryInterface
 
         return (new $entity())->where($predicate)->update($data);
     }
-
 
     public function deleteEntity($entity, $predicate)
     {

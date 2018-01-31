@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateWorkflowPartsTable extends Migration
+class CreateBpmsFormsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,18 +13,16 @@ class CreateWorkflowPartsTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms_parts', function (Blueprint $table) {
+        Schema::create('bpms_forms', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('ws_pro_id');
-            $table->string('from');
-            $table->string('to')->nullable();
-            $table->string('state')->nullable();
-            $table->boolean('is_ended');
-            $table->integer('transition_id');
-            $table->string('gate_id')->nullable();
+            $table->string('title')->unique();
+            $table->string('description')->nullable();
+            $table->text('content_html');
+            $table->text('content_js')->nullable();
+            $table->json('options')->nullable();            
             $table->timestamps();
-            $table->softDeletes();		
-            
+            $table->softDeletes();	                         
         });
     }
 
@@ -35,6 +33,6 @@ class CreateWorkflowPartsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bpms_parts');
+        Schema::dropIfExists('bpms_forms');
     }
 }

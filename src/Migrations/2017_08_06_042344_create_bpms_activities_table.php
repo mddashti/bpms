@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateWorkflowActivitiesTable extends Migration
+class CreateBpmsActivitiesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -22,7 +22,7 @@ class CreateWorkflowActivitiesTable extends Migration
             $table->integer('type');
             $table->integer('pre');
             $table->string('comment')->nullable();
-            $table->text('options')->nullable();
+            $table->json('options')->nullable();
             $table->timestamp('finished_at')-> nullable();	
             $table->timestamps();
         });

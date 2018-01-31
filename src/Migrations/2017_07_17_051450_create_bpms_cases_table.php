@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateWorkflowCasesTable extends Migration
+class CreateBpmsCasesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -25,8 +25,8 @@ class CreateWorkflowCasesTable extends Migration
             $table->string('state')->nullable();
             $table->string('status')->default('created');
             $table->integer('activity_id')->default(0);
-            $table->text('options')->nullable();
-            $table->text('system_options')->nullable();            
+            $table->json('options')->nullable();
+            $table->json('system_options')->nullable();            
             $table->timestamps();
             $table->timestamp('finished_at')->nullable();
             $table->softDeletes();		

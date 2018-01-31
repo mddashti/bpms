@@ -3,13 +3,12 @@
 namespace Niyam\Bpms\Model;
 
 use Illuminate\Database\Eloquent\Model;
-use Niyam\Bpms\Model\BpmsForm;
 
 class BpmsState extends Model
 {
     protected $guarded = ['id'];
      
-    protected $visible = ['id','wid','text','ws_pro_id'];
+    protected $visible = ['id','wid','text','ws_pro_id', 'workflow'];
      
     protected $casts = [
         'options' => 'array',

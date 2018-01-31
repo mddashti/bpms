@@ -11,6 +11,8 @@ class BpmsForm extends Model
 
     protected $guarded = ['id'];
 
+    protected $hidden = ['stateConfigs'];
+
     protected $casts = [
         'options' => 'array',
     ];
@@ -35,4 +37,14 @@ class BpmsForm extends Model
     {
         return $this->hasManyThrough(BpmsElementTrigger::class, BpmsElement::class, 'form_id', 'element_id');
     }
+
+    public function variables()
+    {
+        return $this->belongsToMany(BpmsVariable::class, 'bpms_elements', 'form_id', 'variable_id')->withPivot('element_name', 'element_type')->with('fetch');
+    }
+
+    // public function fetches()
+    // {
+    //     return $this->hasManyThrough(BpmsFetch::class, BpmsVariable::class, 'fetch_id', 'id');
+    // }
 }

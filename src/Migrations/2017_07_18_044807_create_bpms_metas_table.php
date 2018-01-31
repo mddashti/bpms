@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateBpmsElementTriggersTable extends Migration
+class CreateBpmsMetasTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,16 @@ class CreateBpmsElementTriggersTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms_element_triggers', function (Blueprint $table) {
+        Schema::create('bpms_metas', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('element_id');            
-            $table->integer('trigger_id');
-            $table->integer('event_type_id');
+            $table->integer('element_type')->default(1);
+            $table->integer('element_id')->default(0);
+            $table->string('element_name')->nullable();
+            $table->integer('meta_type')->nullable();
+            $table->string('meta_value')->nullable();
+            $table->integer('case_id');
             $table->json('options')->nullable();
             $table->timestamps();
-            $table->softDeletes();	 
         });
     }
 
@@ -31,6 +33,6 @@ class CreateBpmsElementTriggersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bpms_element_triggers');
+        Schema::dropIfExists('bpms_metas');
     }
 }

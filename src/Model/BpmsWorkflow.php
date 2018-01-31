@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class BpmsWorkflow extends Model
 {
     protected $guarded = ['id'];
-    protected $visible = ['id','name','wid','type','wxml','description'];
+    // protected $visible = ['id','name','wid','type','description','niyam'];
     protected $casts = [
         'options' => 'array',
     ];

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateWorkflowCasePartsTable extends Migration
+class CreateBpmsCasePartsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -25,8 +25,8 @@ class CreateWorkflowCasePartsTable extends Migration
             $table->integer('user_current');            
             $table->integer('transition_id');
             $table->string('gate_id')->nullable();
-            $table->text('options')->nullable();
-            $table->text('system_options')->nullable();   
+            $table->json('options')->nullable();
+            $table->json('system_options')->nullable();   
             $table->timestamps();
             $table->softDeletes();		            
         });

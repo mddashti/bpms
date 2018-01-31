@@ -19,8 +19,8 @@ class CreateBpmsStateConfigsTable extends Migration
             $table->integer('form_id')->nullable();            
             $table->integer('trigger_id')->nullable();
             $table->integer('run_type')->nullable();
-            $table->string('condition')->nullable();            
-            $table->text('options')->nullable();            
+            $table->string('condition')->default(true);            
+            $table->json('options')->nullable();            
             $table->timestamps();
             $table->softDeletes();	 
         });

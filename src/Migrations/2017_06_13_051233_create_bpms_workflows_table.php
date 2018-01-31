@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateWorkflowsTable extends Migration
+class CreateBpmsWorkflowsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -26,7 +26,7 @@ class CreateWorkflowsTable extends Migration
             $table->string('state')->nullable();
             $table->boolean('is_parsed')->default(false);
             $table->text('description')->nullable();
-            $table->text('options')->nullable();
+            $table->json('options')->nullable();
             $table->timestamps();
         });
     }

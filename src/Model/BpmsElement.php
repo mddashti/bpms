@@ -19,11 +19,13 @@ class BpmsElement extends Model
 
     public function variable()
     {
-        return $this->hasOne(BpmsVariable::class, 'variable_id');
+        return $this->belongsTo(BpmsVariable::class, 'variable_id');
     }
 
     public function elementTriggers()
     {
         return $this->hasMany(BpmsElementTrigger::class, 'element_id');
     }
+
+    
 }

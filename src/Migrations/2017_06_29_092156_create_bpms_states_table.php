@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateWorkflowStatesTable extends Migration
+class CreateBpmsStatesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -24,7 +24,7 @@ class CreateWorkflowStatesTable extends Migration
             $table->string('next_type')->nullable();
             $table->integer('meta_type')->nullable();
             $table->integer('meta_value')->nullable();
-            $table->text('options')->nullable();
+            $table->json('options')->nullable();
 
             $table->timestamps();
         });

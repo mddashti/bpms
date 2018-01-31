@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateWorkflowMetasTable extends Migration
+class CreateBpmsGatesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,13 @@ class CreateWorkflowMetasTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms_metas', function (Blueprint $table) {
+        Schema::create('bpms_gates', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('element_type')->default(1);
-            $table->integer('element_id')->default(0);
-            $table->string('element_name')->nullable();
-            $table->integer('meta_type')->nullable();
-            $table->string('meta_value')->nullable();
-            $table->integer('case_id');
+            $table->integer('ws_pro_id');
+            $table->string('type')->nullable();
+            $table->string('wid')->nullable();
+            $table->boolean('is_end')->default(false);
+            $table->string('text')->nullable(); 
             $table->json('options')->nullable();
             $table->timestamps();
         });
@@ -33,6 +32,6 @@ class CreateWorkflowMetasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bpms_metas');
+        Schema::dropIfExists('bpms_gates');
     }
 }

@@ -11,7 +11,8 @@ interface ProcessLogicInterface
         NEXT_BADACCESS = 1,
         NEXT_FORM = 2,
         NEXT_PREVIEW = 3,
-        NEXT_NEXT = 4;
+        NEXT_NEXT = 4,
+        NEXT_ERROR = 5;
 
 
     const
@@ -32,24 +33,26 @@ interface ProcessLogicInterface
         META_TYPE_USER = 1,
         META_TYPE_SUBUSER = 2,
         META_TYPE_SUBPOSITION = 3,
-        META_TYPE_SUBPROCESS = 4,
-        META_TYPE_CYCLIC = 5,
-        META_TYPE_COMMON = 6,
-        META_TYPE_VARIABLE = 7,
+        META_TYPE_SUBPROCESS = 4,//4,ws_pro_id, 
+        META_TYPE_CYCLIC = 5,//5,null,users=[1,2] 
+        META_TYPE_COMMON = 6,//6,null,users=[1,2]
+        META_TYPE_VARIABLE = 7,//7,null,users=[z] where z --> 1
         META_TYPE_MANUAL = 8,
-        META_TYPE_COMMON_VARIABLE = 9,
+        META_TYPE_COMMON_VARIABLE = 9,//9,null,users=[z] where z --> [1,2] 
         META_TYPE_ARRAY_VARIABLE = 10,
-        META_TYPE_COMMON_CUSTOM = 11;
+        META_TYPE_COMMON_CUSTOM = 11,
+        META_TYPE_SCRIPT_URL = 12,
+        META_TYPE_SCRIPT_CODE = 13;
+
+    const
+        USER_COMMAN = -1,
+        USER_NO_MATCH = -2,
+        USER_EXCEPTION = -3,
+        USER_NOT_EXIST = -4,
+        USER_SCRIPT_URL = -5;
 
     const
         SYSTEM_CASE = 0;
-
-    const
-        TRANSITION_NORMAL = 0,
-        TRANSITION_AND_JOIN = 2,
-        TRANSITION_AND_SPLIT = 3,
-        TRANSITION_OR_JOIN = 20,
-        TRANSITION_OR_SPLIT = 30;
 
     const
         WORKFLOW_CREATED = 0,
@@ -76,7 +79,11 @@ interface ProcessLogicInterface
         WORKFLOW_ENDED_BEFORE = 21,
         WORKFLOW_LONELY_PART = 22,
         WORKFLOW_MAYBE_LOCKED = 23,
-        WORKFLOW_STATE_NOTFOUND = 24;
+        WORKFLOW_STATE_NOTFOUND = 24,
+        WORKFLOW_NO_FORM = 25,
+        WORKFLOW_NO_MATCH_FORM = 26,
+        WORKFLOW_PREVIEW = 27;
+
 
 
     public function setCase($case, $baseTable = false);
@@ -99,7 +106,7 @@ interface ProcessLogicInterface
 
     public function saveParsedData($data);
 
-    public function getNextStep($state = null, $vars = null);
+    // public function getNextStep($state = null, $vars = null);
 
     public function isEligible($metaReq, $stateReq = null, $typeReq = 1);
 
@@ -130,7 +137,11 @@ interface ProcessLogicInterface
 
     public function getSubprocessMetaWorkflow($workflow, $state);
 
-    public function getSubprocessMetaCase($case, $state);
+    // public function getSubprocessMetaCase($case, $state);
+
+    public function setSubProcessMeta($stateWID, $caseId);
+
+    //public function setSubprocessMeta($inputArray);
 
     public function getLastPartState();
 
@@ -148,11 +159,8 @@ interface ProcessLogicInterface
 
     public function takePic();
 
-    // public function getTransitionMeta($tid);
-
     public function getSubProcessMeta($stateWID);
 
-    public function setSubProcessMeta($stateWID, $caseId);
 
     //$data is associative array
     //'type' => META_TYPE_*,
@@ -187,8 +195,6 @@ interface ProcessLogicInterface
 
     public function addActivityLog();
 
-    public function prepareStateMachine($stateWID = null);
-
     public function getStatus();
 
     public function getPartsStateWID();
@@ -197,12 +203,7 @@ interface ProcessLogicInterface
 
     public function getGateConditions($gateWID, $workflow_id = null);
 
-    //$data=['conditions'=>[['condition' => 'A==1','to' => 'stateWID','order' => 1],...], 'froms'=>['stateWID', ...]]
     public function setGateConditions($gateWID, $conditions, $workflow_id = null);
-
-    // public function getCurrentStateStateMachine();
-
-    // public function isEndGate($gateWID);
 
     public function setPart($partId = null);
 
@@ -227,42 +228,12 @@ interface ProcessLogicInterface
     public function deleteStateForm($inputArray);
     public function getVariables($predicate = null, $columns = null);
     public function getVariablesWithValue($predicate = null);
-    
-    // public function updateStateForm($stateWID, $predicate, $data);
-
-    // public function addStateForm($stateWID, $data);    
-
-    // public function deleteStateForm($stateWID, $predicate);
-
-
-    // public function getStateTriggers($stateWID, $type);
-    
-    // public function updateStateTrigger($stateWID, $predicate, $data);
-    
-    // public function addStateTrigger($stateWID, $data);    
-    
-    // public function deleteStateTrigger($stateWID, $predicate);
-
-
-    // public function getFormTriggers($stateWID, $type);
-    
-    // public function updateFormTrigger($statesWID, $predicate, $data);
-    
-    // public function addFormTrigger($stateWID, $data);    
-    
-    // public function deleteFormTrigger($stateWID, $predicate);
-
-
-    // public function getForms($predicate, $columns = null, $with);
-
+    //public function getFormTriggers($predicate, $columns = null);
+    public function getFormElements($predicate, $columns = null);
     public function addForm($data);
-
     public function updateForm($predicate, $data);
-
     public function deleteForm($predicate);
-
     public function deleteWorkflowEntity($entity, $predicate, $check = true);
-
     public function getWorkflowEntities($entity, $predicate, $columns = null, $with = null);
 }
 
