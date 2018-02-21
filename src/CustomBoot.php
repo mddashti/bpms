@@ -7,7 +7,6 @@ class CustomBoot
 {
     public static function enable($options = null)
     {
-        
         $capsule = new Manager();
         $capsule->addConnection([
             'driver' => 'mysql',

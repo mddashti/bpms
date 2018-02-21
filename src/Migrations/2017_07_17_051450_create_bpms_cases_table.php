@@ -25,6 +25,7 @@ class CreateBpmsCasesTable extends Migration
             $table->string('state')->nullable();
             $table->string('status')->default('created');
             $table->integer('activity_id')->default(0);
+            $table->boolean('seen')->default(false);
             $table->json('options')->nullable();
             $table->json('system_options')->nullable();            
             $table->timestamps();

@@ -18,7 +18,7 @@ class CreateBpmsFormsTable extends Migration
             $table->integer('ws_pro_id');
             $table->string('title')->unique();
             $table->string('description')->nullable();
-            $table->text('content_html');
+            $table->text('content_html')->nullable();
             $table->text('content_js')->nullable();
             $table->json('options')->nullable();            
             $table->timestamps();

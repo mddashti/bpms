@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class BpmsGate extends Model
 {
     protected $guarded = ['id'];
+    protected $casts = [
+        'options' => 'array',
+    ];
     
     public function workflow()
     {

@@ -11,6 +11,9 @@ class BpmsVariable extends Model
     use SoftDeletes;
 
     protected $guarded = ['id'];
+    protected $casts = [
+        'options' => 'array',
+    ];
 
     public function workflow()
     {

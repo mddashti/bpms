@@ -230,9 +230,9 @@ interface ProcessLogicInterface
     public function getVariablesWithValue($predicate = null);
     //public function getFormTriggers($predicate, $columns = null);
     public function getFormElements($predicate, $columns = null);
-    public function addForm($data);
-    public function updateForm($predicate, $data);
-    public function deleteForm($predicate);
+    // public function addForm($data);
+    // public function updateForm($predicate, $data);
+    // public function deleteForm($predicate);
     public function deleteWorkflowEntity($entity, $predicate, $check = true);
     public function getWorkflowEntities($entity, $predicate, $columns = null, $with = null);
 }
