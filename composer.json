@@ -1,6 +1,6 @@
 {
     "name": "niyam/bpms",
-    "description": "A simple BPMN Library.",
+    "description": "A simple BPMS Library.",
     "keywords": ["bpms", "niyam", "workflow"],
     "license": "MIT",
     "authors": [{
@@ -10,9 +10,11 @@
     "require": {
         "php": ">=5.4",
         "illuminate/database": "^5.2.6",
+        "illuminate/support": "^5.4.0",
         "nesbot/carbon": "~1.22",
         "symfony/dom-crawler": "^3.3",
-        "symfony/expression-language": "^3.3"
+        "symfony/expression-language": "^3.3",
+        "guzzlehttp/guzzle": "^6.3.0"
     },
     "require-dev": {
         "phpunit/phpunit": "5.2.*"
