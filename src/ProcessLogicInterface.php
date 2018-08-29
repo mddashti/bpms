@@ -42,7 +42,11 @@ interface ProcessLogicInterface
         META_TYPE_ARRAY_VARIABLE = 10,
         META_TYPE_COMMON_CUSTOM = 11,
         META_TYPE_SCRIPT_URL = 12,
-        META_TYPE_SCRIPT_CODE = 13;
+        META_TYPE_SCRIPT_CODE = 13,
+        META_TYPE_MESSAGE = 14,
+        META_TYPE_MESSAGE_VARIABLE = 15,
+        META_TYPE_TIMER = 16,
+        META_TYPE_TIMER_VARIABLE = 17;
 
     const
         USER_COMMAN = -1,
@@ -82,7 +86,8 @@ interface ProcessLogicInterface
         WORKFLOW_STATE_NOTFOUND = 24,
         WORKFLOW_NO_FORM = 25,
         WORKFLOW_NO_MATCH_FORM = 26,
-        WORKFLOW_PREVIEW = 27;
+        WORKFLOW_PREVIEW = 27,
+        WORKFLOW_CHANGE_USER = 28;
 
 
 
@@ -105,8 +110,6 @@ interface ProcessLogicInterface
     public function getUserStarts($userId);
 
     public function saveParsedData($data);
-
-    // public function getNextStep($state = null, $vars = null);
 
     public function isEligible($metaReq, $stateReq = null, $typeReq = 1);
 
@@ -137,11 +140,7 @@ interface ProcessLogicInterface
 
     public function getSubprocessMetaWorkflow($workflow, $state);
 
-    // public function getSubprocessMetaCase($case, $state);
-
     public function setSubProcessMeta($stateWID, $caseId);
-
-    //public function setSubprocessMeta($inputArray);
 
     public function getLastPartState();
 
@@ -160,7 +159,6 @@ interface ProcessLogicInterface
     public function takePic();
 
     public function getSubProcessMeta($stateWID);
-
 
     //$data is associative array
     //'type' => META_TYPE_*,
@@ -183,9 +181,7 @@ interface ProcessLogicInterface
     //name (used when user of library is system such as API access) 
     //predicate ['form'=> 2]
 
-    public function getStateMeta($stateWID, $predicate = null, $columns = null);
-
-    // public function getTransitionMetaUI();
+    public function getStateMeta($stateWID = null, $predicate = null, $columns = null);
 
     public function updateStateOptions($stateWID, $caseId);
 
@@ -228,11 +224,7 @@ interface ProcessLogicInterface
     public function deleteStateForm($inputArray);
     public function getVariables($predicate = null, $columns = null);
     public function getVariablesWithValue($predicate = null);
-    //public function getFormTriggers($predicate, $columns = null);
     public function getFormElements($predicate, $columns = null);
-    // public function addForm($data);
-    // public function updateForm($predicate, $data);
-    // public function deleteForm($predicate);
     public function deleteWorkflowEntity($entity, $predicate, $check = true);
     public function getWorkflowEntities($entity, $predicate, $columns = null, $with = null);
 }

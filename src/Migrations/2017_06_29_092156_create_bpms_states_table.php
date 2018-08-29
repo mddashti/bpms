@@ -17,6 +17,7 @@ class CreateBpmsStatesTable extends Migration
             $table->increments('id');
             $table->string('wid');
             $table->string('type');
+            $table->string('loop');
             $table->integer('position_state');
             $table->integer('ws_pro_id');
             $table->string('text');

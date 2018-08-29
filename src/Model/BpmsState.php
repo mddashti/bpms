@@ -8,7 +8,7 @@ class BpmsState extends Model
 {
     protected $guarded = ['id'];
      
-    protected $visible = ['id','wid','text','ws_pro_id', 'workflow'];
+    protected $visible = ['id','wid','text','ws_pro_id', 'workflow','type'];
      
     protected $casts = [
         'options' => 'array',
