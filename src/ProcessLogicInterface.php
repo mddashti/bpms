@@ -24,12 +24,12 @@ interface ProcessLogicInterface
         META_TYPE_USER = 1,
         META_TYPE_SUBUSER = 2,
         META_TYPE_SUBPOSITION = 3,
-        META_TYPE_SUBPROCESS = 4,//4,ws_pro_id, 
-        META_TYPE_CYCLIC = 5,//5,null,users=[1,2] 
-        META_TYPE_COMMON = 6,//6,null,users=[1,2]
-        META_TYPE_VARIABLE = 7,//7,null,users=[z] where z --> 1
+        META_TYPE_SUBPROCESS = 4, //4,ws_pro_id, 
+        META_TYPE_CYCLIC = 5, //5,null,users=[1,2] 
+        META_TYPE_COMMON = 6, //6,null,users=[1,2]
+        META_TYPE_VARIABLE = 7, //7,null,users=[z] where z --> 1
         META_TYPE_MANUAL = 8,
-        META_TYPE_COMMON_VARIABLE = 9,//9,null,users=[z] where z --> [1,2] 
+        META_TYPE_COMMON_VARIABLE = 9, //9,null,users=[z] where z --> [1,2] 
         META_TYPE_ARRAY_VARIABLE = 10,
         META_TYPE_COMMON_CUSTOM = 11,
         META_TYPE_SCRIPT_URL = 12,
@@ -89,8 +89,8 @@ interface ProcessLogicInterface
     public function setWorkflow($workflow);
 
     public function setWorkflowById($id);
-    
-    
+
+
 
     // public function setCaseOption($option, $value, $caseId = null);
 
@@ -105,7 +105,7 @@ interface ProcessLogicInterface
     public function getAvailableTransitions($fromState = null);
 
     public function getPossibleStates($fromState, $vars = null);
-   
+
     //InoutArray 'ws_pro_id' => workflow_id, 'user' => user_id_of_case_creator, 'title' => title_of_case
     //Add default global vars => ['A'=>1,'B'=>2]
     //Add 'start'=> state_wid to start case in your desired state, start must be in POSITION_START!
@@ -216,7 +216,3 @@ interface ProcessLogicInterface
     // public function deleteWorkflowEntity($entity, $predicate, $check = true);
     // public function getWorkflowEntities($entity, $predicate, $columns = null, $with = null);
 }
-
-
-
-

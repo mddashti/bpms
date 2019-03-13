@@ -7,7 +7,7 @@ class BPMS
 {
     public static function routes($callback = null, array $options = [])
     {
-        $callback = $callback ? : function ($router) {
+        $callback = $callback ?: function ($router) {
             $router->all();
         };
 
@@ -23,3 +23,4 @@ class BPMS
         });
     }
 }
+
