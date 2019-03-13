@@ -1,10 +1,45 @@
 <?php namespace Niyam\Bpms\Data;
 
 use Niyam\Bpms\Model\BpmsCase;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 
-class LaraDataRepository implements DataRepositoryInterface
+
+
+class BaseService implements DataRepositoryInterface
 {
+    protected $wid;
+
+    protected $cid;
+
+    protected $case;
+
+    protected $workflow;
+
+    protected $test = true;
+
+    public function setWorkflowId($wid)
+    {
+        $this->wid = $wid;
+    }
+
+    public function setCaseId($cid)
+    {
+        $this->cid = $cid;
+    }
+
+    public function setWorkflow($workflow)
+    {
+        $this->workflow = $workflow;
+        $this->wid = $workflow->id;
+    }
+
+    public function setCase($case)
+    {
+        $this->case = $case;
+        $this->cid = $case->id;
+    }
 
     public function getEntity($entity, $id)
     {
@@ -40,7 +75,9 @@ class LaraDataRepository implements DataRepositoryInterface
 
     public function findEntitiesByOrder($entity, $predicate, $field, $order)
     {
-        return (new $entity())->where($predicate)->orderby($field, $order)->get();
+        if($predicate)
+            return (new $entity())->where($predicate)->orderby($field, $order)->get();
+        return (new $entity())->orderby($field, $order)->get();
     }
 
     public function findCasesByMixed($predicate, $columns, $field, $order, $skip, $limit)
@@ -123,5 +160,28 @@ class LaraDataRepository implements DataRepositoryInterface
     public function deleteNotIn($entity, $predicate, $to_keep)
     {
         return (new $entity())::where($predicate)->whereNotIn('id', $to_keep)->delete();
+    }
+
+    public function executeSelectQuery($query)
+    {
+        try {
+            return DB::select($query);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    public function checkCondition($condition, $vars = null)
+    {
+        $language = new ExpressionLanguage();
+        if (!$condition)
+            return false;
+        $vars = $vars ? : array();
+
+        try {
+            return $language->evaluate($condition, $vars);
+        } catch (\Exception $e) {
+            return -1;
+        }
     }
 }

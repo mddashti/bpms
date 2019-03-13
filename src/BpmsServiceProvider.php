@@ -20,13 +20,12 @@ class BpmsServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind('Niyam\Bpms\Data\DataRepositoryInterface', 'Niyam\Bpms\Data\LaraDataRepository');        
+        $this->app->bind('Niyam\Bpms\Data\DataRepositoryInterface', 'Niyam\Bpms\Service\ProcessService');        
         $this->registerMigrations();        
     }
 
     protected function registerMigrations()
     {
-        //dd(__DIR__ . '/migrations');
         return $this->loadMigrationsFrom(__DIR__ . '/Migrations');
     }
 }

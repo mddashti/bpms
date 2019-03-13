@@ -26,4 +26,9 @@ class BpmsTransition extends Model
     {
         return $this->belongsTo(BpmsState::class,'to_state');
     }
+
+    public function gate()
+    {
+        return $this->belongsTo(BpmsGate::class,'gate_wid','wid');
+    }
 }

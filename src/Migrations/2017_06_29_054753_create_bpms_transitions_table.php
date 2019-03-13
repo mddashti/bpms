@@ -22,6 +22,7 @@ class CreateBpmsTransitionsTable extends Migration
             $table->string('from_state');
             $table->string('to_state');
             $table->string('meta')->nullable();
+            $table->boolean('default')->default(false); 
             $table->json('options')->nullable();            
             $table->timestamps();
         });

@@ -34,18 +34,13 @@ interface DataRepositoryInterface
 
     public function findCasesByMixed($predicate, $columns, $field, $order, $skip, $limit);
 
-
     public function findEntityByRandom($entity, $predicate);
-
 
     public function countEntity($entity, $predicate);
 
-
     public function createEntity($entity, $data);
 
-
     public function updateEntity($entity, $predicate, $data, $create = false);
-
 
     public function deleteEntity($entity, $predicate);
 

@@ -16,6 +16,7 @@ class CreateBpmsCasesTable extends Migration
         Schema::create('bpms_cases', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('ws_pro_id');
+            $table->string('cid')->nullable();
             $table->integer('user_creator')->default(0);
             $table->integer('user_from')->default(0);
             $table->integer('user_current')->default(0);

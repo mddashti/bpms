@@ -15,4 +15,9 @@ class BpmsGate extends Model
     {
         return $this->belongsTo(BpmsWorkflow::class);
     }
+
+    public function transitions()
+    {
+        return $this->hasMany(BpmsTransition::class, 'gate_wid');
+    }
 }
