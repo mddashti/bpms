@@ -41,9 +41,9 @@ interface ProcessLogicInterface
         META_TYPE_POSITION_XY = 18,//x:{type:1, value:role_id} or x:{type:2, value:variable}, y:{type:1, value:role_id} or y:{type:2, value:variable}
         META_TYPE_POSITION_XL = 19,//x:{type:1, value:role_id} or x:{type:2, value:variable} y:{type:1, value:level}
         META_TYPE_POSITION_XTAG = 20,// x:{type:1, value:role_id} or x:{type:2, value:variable}   //y:{type:1,value:tag_id}
-        META_TYPE_CYCLIC_ROLE = 21,//users=[1,2] --->role_id
-        META_TYPE_COMMON_ROLE = 22,//users=[1,2] --->role_id
-        META_TYPE_MANUAL_ROLE = 23;//users=[1,2] --->role_id
+        META_TYPE_CYCLIC_POSITION = 21,//users=[1,2] --->role_id
+        META_TYPE_COMMON_POSITION = 22,//users=[1,2] --->role_id
+        META_TYPE_MANUAL_POSITION = 23;//users=[1,2] --->role_id
     const
         USER_COMMAN = -1,
         USER_NO_MATCH = -2,
