@@ -1,11 +1,6 @@
 <?php namespace Niyam\Bpms\Service;
 
-use Niyam\Bpms\Data\DataRepositoryInterface;
 use Niyam\Bpms\Data\BaseService;
-use Niyam\Bpms\Service\FormService;
-
-use Niyam\Bpms\Model\BpmsForm;
-
 
 class StateService extends BaseService
 {
@@ -25,7 +20,7 @@ class StateService extends BaseService
         }
         try {
             if (!$this->baseTable) {
-                $s = $this->dataRepo->findEntity(static::BPMS_META, ['case_id' => $this->getCaseId(), 'element_type' => 1, 'element_name' => $state]);
+                $s = $this->findEntity(static::BPMS_META, ['case_id' => $this->getCaseId(), 'element_type' => 1, 'element_name' => $state]);
                 $opts = $s->options;
                 $s->type = $opts['type'];
                 $s->next_wid = $opts['next_wid'];
@@ -35,7 +30,7 @@ class StateService extends BaseService
                 return new ProcessResponse($s ? true : false, $s, 'OK');
             }
 
-            $s = $this->dataRepo->findEntity(static::BPMS_STATE, ['wid' => $state, 'ws_pro_id' => $this->wid]);
+            $s = $this->findEntity(static::BPMS_STATE, ['wid' => $state, 'ws_pro_id' => $this->wid]);
             $this->currentState = $s;
             return new ProcessResponse($s ? true : false, $s, 'OK');
         } catch (\Exception $e) {
@@ -52,7 +47,7 @@ class StateService extends BaseService
             $opts = $state->options;
         } else {
             $predicate = ['element_type' => 1, 'element_name' => $stateWID, 'case_id' => $this->id];
-            $meta = $this->dataRepo->findEntity(static::BPMS_META, $predicate);
+            $meta = $this->findEntity(static::BPMS_META, $predicate);
             $opts = $meta->options;
         }
 
@@ -62,6 +57,16 @@ class StateService extends BaseService
 
         if (isset($data['users'])) {
             $opts['users'] = $data['users'];
+        }
+
+    
+        //Sequential task
+        if (isset($data['x'])) {
+            $opts['x'] = $data['x'];
+        }
+
+        if (isset($data['y'])) {
+            $opts['y'] = $data['y'];
         }
 
         //Script task 
@@ -97,20 +102,12 @@ class StateService extends BaseService
         
         //To add one form to forms
         if (isset($data['form'])) {
+            $form_id = $data['form']['form_id'];
+           
+            $this->formService->updateFormOfState(['state_id' => $state->id, 'form_id' => $form_id], $data['form']);
 
-            $formData = ['form_id' => $data['form']];
-
-            if (isset($data['form_condition'])) {
-                $formData['condition'] = $data['form_condition'];
-            }
-            if (isset($data['options'])) {
-                $formData['options'] = $data['options'];
-            }
-
-            $this->formService->updateFormOfState(['state_id' => $state->id, 'form_id' => $data['form']], $formData);
-
-            if (isset($opts['forms']) ? !in_array($data['form'], $opts['forms']) : true)
-                $opts['forms'][] = $data['form'];
+            if (isset($opts['forms']) ? !in_array($form_id, $opts['forms']) : true)
+                $opts['forms'][] = $form_id;
         }
         //To replace all forms --- to rearrange
         if (isset($data['forms'])) {
@@ -134,7 +131,7 @@ class StateService extends BaseService
         }
     }
 
-    public function getStateMeta($stateWID = null, $predicate = null, $columns = null)
+    public function getStateMeta($stateWID = null, $predicate = null, $columns = '*')
     {
         if ($this->test) {
             $meta = $this->findEntity(static::BPMS_STATE, ['wid' => $stateWID ? $stateWID : $this->state, 'ws_pro_id' => $this->wid]);
@@ -149,6 +146,14 @@ class StateService extends BaseService
         $opts = $meta->options;
         
         $res = array();
+
+        if (isset($opts['x'])) {
+            $res['x'] = $opts['x'];
+        }
+
+        if (isset($opts['y'])) {
+            $res['y'] = $opts['y'];
+        }
 
         if (isset($opts['back'])) {
             $res['back'] = $opts['back'];

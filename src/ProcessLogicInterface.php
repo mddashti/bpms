@@ -37,8 +37,13 @@ interface ProcessLogicInterface
         META_TYPE_MESSAGE = 14,
         META_TYPE_MESSAGE_VARIABLE = 15,
         META_TYPE_TIMER = 16,
-        META_TYPE_TIMER_VARIABLE = 17;
-
+        META_TYPE_TIMER_VARIABLE = 17,
+        META_TYPE_POSITION_XY = 18,//x:{type:1, value:role_id} or x:{type:2, value:variable}, y:{type:1, value:role_id} or y:{type:2, value:variable}
+        META_TYPE_POSITION_XL = 19,//x:{type:1, value:role_id} or x:{type:2, value:variable} y:{type:1, value:level}
+        META_TYPE_POSITION_XTAG = 20,// x:{type:1, value:role_id} or x:{type:2, value:variable}   //y:{type:1,value:tag_id}
+        META_TYPE_CYCLIC_ROLE = 21,//users=[1,2] --->role_id
+        META_TYPE_COMMON_ROLE = 22,//users=[1,2] --->role_id
+        META_TYPE_MANUAL_ROLE = 23;//users=[1,2] --->role_id
     const
         USER_COMMAN = -1,
         USER_NO_MATCH = -2,
@@ -80,8 +85,6 @@ interface ProcessLogicInterface
         WORKFLOW_PREVIEW = 27,
         WORKFLOW_CHANGE_USER = 28;
 
-
-
     public function setCase($case, $baseTable = false);
 
     public function setCaseById($caseId, $baseTable = false);
@@ -89,12 +92,6 @@ interface ProcessLogicInterface
     public function setWorkflow($workflow);
 
     public function setWorkflowById($id);
-
-
-
-    // public function setCaseOption($option, $value, $caseId = null);
-
-    // public function getCaseOption($option, $caseId = null);
 
     public function getUserStarts($userId);
 
@@ -113,25 +110,11 @@ interface ProcessLogicInterface
 
     public function createCase($inputArray);
 
-    //public function getCases($predicate, $filter = null);
-
-    //public function createProcess($title, $wid, $userId, $ws_id = null, $type = null, $newType = null, $wbody = null, $wsvg = null, $opts = null);
-
     public function createWorkflow($inputArray);
-
-    // public function updateWorkflow($predicate, $data);
-
-    // public function deleteWorkflow($predicate);
-
-    // public function getWorkflows($predicate = null, $columns = null);
-
-    // public function getWorkflowTypes($predicate);
 
     public function getSubprocessMetaWorkflow($workflow, $state);
 
     public function setSubProcessMeta($stateWID, $caseId);
-
-    // public function getLastPartState();
 
     public function loadSubProcess($caseId);
 
@@ -170,7 +153,7 @@ interface ProcessLogicInterface
     //name (used when user of library is system such as API access) 
     //predicate ['form'=> 2]
 
-    // public function getStateMeta($stateWID = null, $predicate = null, $columns = null);
+    // public function getStateMeta($stateWID = null, $predicate = null, $columns = '*');
 
     public function updateStateOptions($stateWID, $caseId);
 
@@ -185,10 +168,6 @@ interface ProcessLogicInterface
     public function getPartsStateWID();
 
     public function getBaseState();
-
-    // public function getGateConditions($gateWID, $workflow_id = null);
-
-    // public function setGateConditions($gateWID, $conditions, $workflow_id = null);
 
     public function setPart($partId = null);
 
@@ -205,14 +184,4 @@ interface ProcessLogicInterface
     public function goBack($inputArray);
 
     public function isStateDone($form);
-
-    //Get state forms ordered by view_order
-    // public function getStateForms($stateWID, $assigned = true, $columns = null);
-    // public function getStateFormCondition($InputArray);
-    // public function deleteStateForm($inputArray);
-    // public function getVariables($predicate = null, $columns = null);
-    // public function getVariablesWithValue($predicate = null);
-    // public function getFormElements($predicate, $columns = null);
-    // public function deleteWorkflowEntity($entity, $predicate, $check = true);
-    // public function getWorkflowEntities($entity, $predicate, $columns = null, $with = null);
 }

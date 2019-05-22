@@ -26,7 +26,7 @@ class CaseService extends BaseService
     //$value for state_vars must be array of 'id' and 'vars', id refer to form_id and vars are local variables of form!
     public function setCaseOption($option, $value, $caseId = null)
     {
-        $caseId = $caseId ? : $this->cid;
+        $caseId = $caseId ?: $this->cid;
         $found = $this->getEntity(static::BPMS_CASE, $caseId);
         $opts = $found->options;
 
@@ -38,16 +38,13 @@ class CaseService extends BaseService
             }
         }
 
-        $data = ['options' => $opts];
-        $data = ['updated_at'  => now()];
-
-        //return $this->case = BpmsCase::updateOrCreate(['id' => $caseId], $data);
+        $data = ['options' => $opts, 'updated_at'  => now()];
         return BpmsCase::updateOrCreate(['id' => $caseId], $data); //return updated case
     }
 
     private function setSystemCaseOption($option, $value, $caseId = null)
     {
-        $caseId = $caseId ? : $this->cid;
+        $caseId = $caseId ?: $this->cid;
         $found = $this->getEntity(static::BPMS_CASE, $caseId);
         $opts = $found->options;
 
@@ -109,8 +106,8 @@ class CaseService extends BaseService
             $data['status'] = 'created';
         } else if ($userCreator != static::SYSTEM_CASE && !$startState) {
             $predicate = ['position_state' => ProcessLogicInterface::POSITION_START, 'ws_pro_id' => $workflowId];
-            
-            $states = $this->dataRepo->findEntities(DataRepositoryInterface::BPMS_STATE, $predicate)->toArray();
+
+            $states = $this->findEntities(static::BPMS_STATE, $predicate)->toArray();
 
             if (count($states) > 1)
                 return false;
@@ -121,7 +118,7 @@ class CaseService extends BaseService
 
         if ($userCreator != static::SYSTEM_CASE && static::CONFIG_FILTER_DUPLICATE_CASE) {
             $duplicatePredicate = ['user_creator' => $userCreator, 'status' => 'created', 'ws_pro_id' => $workflowId];
-            $founds = $this->dataRepo->findEntities(DataRepositoryInterface::BPMS_CASE, $duplicatePredicate);
+            $founds = $this->findEntities(static::BPMS_CASE, $duplicatePredicate);
 
             foreach ($founds as $found) {
                 if (!isset(BpmsMeta::where('case_id', $found->id)->first()->options['forms'])) {
@@ -143,7 +140,7 @@ class CaseService extends BaseService
 
         $data['title'] = $title;
 
-        $newCaseId = $this->dataRepo->createEntity(DataRepositoryInterface::BPMS_CASE, $data);
+        $newCaseId = $this->createEntity(static::BPMS_CASE, $data);
 
 
         if ($userCreator == static::SYSTEM_CASE) {
@@ -164,14 +161,14 @@ class CaseService extends BaseService
         if ($userCreator == static::SYSTEM_CASE)
             $this->import($backup);
 
-        $states = $this->dataRepo->findEntities(DataRepositoryInterface::BPMS_STATE, ['ws_pro_id' => $workflowId]);
+        $states = $this->findEntities(static::BPMS_STATE, ['ws_pro_id' => $workflowId]);
 
         foreach ($states as $state) {
             if ($state->type == 'bpmn:SubProcess') {
                 $opts = $state->options;
                 $opts['cases'] = [];
                 $data = ['element_type' => ProcessLogicInterface::ELEMENT_TYPE_SUBPROCESS, 'meta_type' => $state->meta_type, 'element_id' => $state->id, 'element_name' => $state->wid, 'case_id' => $newCaseId, 'meta_value' => $state->meta_value, 'options' => $opts];
-                $meta = $this->dataRepo->createEntity(DataRepositoryInterface::BPMS_META, $data);
+                $meta = $this->createEntity(static::BPMS_META, $data);
                 continue;
             }
 
@@ -183,21 +180,20 @@ class CaseService extends BaseService
                 $opts['next_type'] = $state->next_type;
                 $opts['text'] = $state->text;
                 $data['options'] = $opts;
-                $meta = $this->dataRepo->createEntity(DataRepositoryInterface::BPMS_META, $data);
+                $meta = $this->createEntity(static::BPMS_META, $data);
             }
         }
 
         if ($make_copy) {
-            $transitions = $this->dataRepo->findEntities(DataRepositoryInterface::BPMS_TRANSITION, ['ws_pro_id' => $workflowId]);
+            $transitions = $this->findEntities(static::BPMS_TRANSITION, ['ws_pro_id' => $workflowId]);
             foreach ($transitions as $t) {
                 $opts = $t->options;
                 $opts['from_state'] = $t->from_state;
                 $opts['to_state'] = $t->to_state;
                 $data = ['element_type' => ProcessLogicInterface::ELEMENT_TYPE_TRANSITION, 'meta_type' => 1, 'element_id' => $t->id, 'element_name' => $t->gate_wid, 'case_id' => $newCaseId, 'meta_value' => $t->meta, 'options' => $opts];
-                $meta = $this->dataRepo->createEntity(DataRepositoryInterface::BPMS_META, $data);
+                $meta = $this->createEntity(static::BPMS_META, $data);
             }
         }
         return $newCaseId;
     }
 }
-

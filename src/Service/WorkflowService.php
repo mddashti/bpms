@@ -74,7 +74,7 @@ class WorkflowService extends BaseService
         return $this->findEntities(static::BPMS_TYPE, $predicate);
     }
 
-    public function getWorkflows($predicate = null, $columns = null)
+    public function getWorkflows($predicate = null, $columns = '*')
     {
         return $this->findEntities(static::BPMS_WORKFLOW, $predicate, $columns);
     }

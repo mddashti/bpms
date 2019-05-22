@@ -28,6 +28,7 @@ class WorkflowController
         $this->wservice = $wservice;
         $this->gservice = $gservice;
         $this->sservice = $sservice;
+        //$this->ldap = $ldap;
     }
     public function index(Request $request)
     {
@@ -45,6 +46,32 @@ class WorkflowController
     public function test(FusionPBX $pbx, Request $request)
     {
         return $request->all();
+        //$this->logic->setWorkflowbyId(3);
+        //$this->logic->setCasebyId(9);
+        //$this->logic->setStateMeta('Task_0f4qvbh', ['form' => 1, 'form_condition' => 'ddd==1']);
+        //return $this->logic->getStateMeta('Task_0f4qvbh', ['form_id' => 2], ['form_id','condition']);
+        //return $this->logic->getStateForms('Task_0f4qvbh', true,['id','title','description']);
+        //return $this->logic->getStateFormCondition(['state_id' => 1, 'form_id' => 1, 'columns' => ['id','condition']]);
+        //return $this->logic->deleteStateForm(['state_id' => 1, 'form_id' => 1]);
+        //return $this->logic->getWorkflowEntities(DataRepositoryInterface::BPMS_VARIABLE,['ws_pro_id' => 1], null, ['fetchMethod']);
+        //return $this->repo->createEntity(DataRepositoryInterface::BPMS_FETCH, ['dbconnection_id' => 1, 'query' => 'select']);
+        //return $res->options['z'];
+        //return $this->logic->getFormTriggers(['id'=>1]);
+        //return $this->logic->getFormElements(['id'=>1]);
+        //return $this->logic->getStateCurrentForm('Task_0f4qvbh');
+        //return BpmsWorkflow::with(['states','transitions','gates'])->get();
+        //return FusionPBX::getActiveCalls();
+
+        //return $res = $pbx->changeLineEnable(60,0);
+        //return $res == FusionPBX::CALLING ? $pbx->getCallerNumber() : $res;
+        //return $res =  $pbx->getHistoryOfCalls('09138562838', '', 'missed','outbound');
+
+
+        // return $res = json_decode($res);
+
+        return $users = $this->ldap->search()->users()->get();
+
+        // return $pbx->changeLineEnable(60,0);
     }
 
     public function getWorkflowsParsed(Request $request)
@@ -103,10 +130,11 @@ class WorkflowController
             if (!BpmsForm::find($form))
                 BpmsForm::create(['ws_pro_id' => $workflow->id, 'id' => $form, 'title' => 'Form' . str_random(8), 'content_html' => '<div>Form' . $form . '</div>']);
 
-
+        $testForm = ['form_id' => 5];
         $state = $request->state;
 
-        $data = ['type' => $metaType, 'value' => $metaValue, 'users' => $metaValuePure, 'forms' => $forms, 'script' => $script];
+        //$data = ['type' => $metaType, 'value' => $metaValue, 'users' => $metaValuePure, 'forms' => $forms, 'script' => $script];
+        $data = ['type' => $metaType, 'value' => $metaValue, 'users' => $metaValuePure, 'form' => $testForm, 'script' => $script];
 
         //$data = ['back' => $metaBack];
         //$data = ['form' => 1];
@@ -159,7 +187,7 @@ class WorkflowController
 
     public function postWorkflowparse(BpmsWorkflow $workflow, Request $request)
     {
-        $transitions = $requestt->transitions;
+        $transitions = $request->transitions;
         $states = $request->tasks;
         $gateways = $request->gateways;
 
@@ -245,4 +273,3 @@ class WorkflowController
         $workflow->delete();
     }
 }
-

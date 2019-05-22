@@ -24,9 +24,9 @@ interface DataRepositoryInterface
 
     public function getEntity($entity, $id);
 
-    public function findEntity($entity, $predicate, $columns = null, $with = null);
+    public function findEntity($entity, $predicate, $columns = '*', $with = null);
 
-    public function findEntities($entity, $predicate, $columns = null, $with = null);
+    public function findEntities($entity, $predicate, $columns = '*', $with = null);
 
     public function findEntityByOrder($entity, $predicate, $field, $order);
 

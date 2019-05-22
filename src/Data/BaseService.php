@@ -46,7 +46,7 @@ class BaseService implements DataRepositoryInterface
         return (new $entity())->find($id);
     }
 
-    public function findEntity($entity, $predicate, $columns = null, $with = null)
+    public function findEntity($entity, $predicate, $columns = '*', $with = null)
     {
         if ($with)
             return (new $entity())->with($with)->where($predicate)->get($columns)->first();
@@ -54,7 +54,7 @@ class BaseService implements DataRepositoryInterface
 
     }
 
-    public function findEntities($entity, $predicate, $columns = null, $with = null)
+    public function findEntities($entity, $predicate, $columns = '*', $with = null)
     {
         if ($predicate && $with)
             return (new $entity())->with($with)->where($predicate)->get($columns);

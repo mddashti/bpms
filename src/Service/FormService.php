@@ -1,8 +1,6 @@
 <?php namespace Niyam\Bpms\Service;
 
-use Niyam\Bpms\Data\DataRepositoryInterface;
 use Niyam\Bpms\Data\BaseService;
-
 use Niyam\Bpms\Model\BpmsForm;
 use Niyam\Bpms\Model\BpmsMeta;
 use Niyam\Bpms\Model\BpmsStateConfig;
@@ -19,7 +17,7 @@ class FormService extends BaseService
         $this->caseService = $caseService;
     }
     #region Forms
-    public function getForms($predicate = null, $columns = null)
+    public function getForms($predicate = null, $columns = '*')
     {
         if (!$predicate)
             return BpmsForm::where('ws_pro_id', $this->wid)->get($columns);
@@ -30,7 +28,7 @@ class FormService extends BaseService
         return $this->findEntities(BaseService::BPMS_FORM, $predicate, $columns);
     }
 
-    public function getStateForms($stateWID = null, $assigned = true, $columns = null, $state = null, $with = null)
+    public function getStateForms($stateWID = null, $assigned = true, $columns = '*', $state = null, $with = null)
     {
         if (!$state)
             $state = $this->findEntity(static::BPMS_STATE, ['wid' => $stateWID]);
@@ -47,12 +45,10 @@ class FormService extends BaseService
                 if ($foundForm)
                     $res[] = $foundForm;
             }
-
         } else if (!$assigned && $forms)
             $res = BpmsForm::where('ws_pro_id', $this->wid)->whereNotIn('id', $forms)->get($columns);
         else if ($assigned && !$forms) {
             $res = null;
-
         } else if (!$assigned && !$forms)
             $res = BpmsForm::where('ws_pro_id', $this->wid)->get($columns);
 
@@ -65,21 +61,21 @@ class FormService extends BaseService
         $this->updateEntity(static::BPMS_STATE_CONFIG, $predicate, $data, true);
     }
 
-    public function getFirstFormOfState($stateWID = null, $state = null)//ProcessLogic
+    public function getFirstFormOfState($stateWID = null, $state = null) //ProcessLogic
     {
         $state = $this->findEntity(static::BPMS_STATE, ['wid' => $stateWID]);
 
         if (!$state)
-            return new ProcessResponse(false,null,'WORKFLOW_NO_STATE',1);
+            return new ProcessResponse(false, null, 'WORKFLOW_NO_STATE', 1);
 
         if ($state->type == "bpmn:ScriptTask") {
-            return new ProcessResponse(true,null,'WORKFLOW_SCRIPT_NO_FORM',2);
+            return new ProcessResponse(true, null, 'WORKFLOW_SCRIPT_NO_FORM', 2);
         }
 
-        $forms = $this->getStateForms(null, true, null, $state, 'stateConfigs')['forms'];
+        $forms = $this->getStateForms(null, true, '*', $state, 'stateConfigs')['forms'];
 
         if (!$forms) {
-            return new ProcessResponse(false,null,'WORKFLOW_NO_FORM',3);
+            return new ProcessResponse(false, null, 'WORKFLOW_NO_FORM', 3);
         }
 
         $vars = $this->caseService->getCaseOption('vars', null, $this->cid);
@@ -93,17 +89,17 @@ class FormService extends BaseService
         }
 
         if (!isset($candidateForm)) {
-            return new ProcessResponse(false,null,'WORKFLOW_NO_MATCH_FORM',4);
+            return new ProcessResponse(false, null, 'WORKFLOW_NO_MATCH_FORM', 4);
         }
 
         $meta = BpmsMeta::where(['element_name' => $stateWID, 'case_id' => $this->cid])->first();
         // if (!$meta || $this->state_first_access || !isset($meta->options['forms']))
         if (!$meta || !isset($meta->options['forms']))
-            return new ProcessResponse(true,$candidateForm, 5);
+            return new ProcessResponse(true, $candidateForm, 5);
         else {
             $formMeta = collect($meta->options['forms'])->where('id', $candidateForm->id)->first();
             $candidateForm->formMeta = $formMeta;
-            return new ProcessResponse(true,$candidateForm, 5);
+            return new ProcessResponse(true, $candidateForm, 5);
         }
     }
 
@@ -120,7 +116,7 @@ class FormService extends BaseService
         return BpmsStateConfig::where(['state_id' => $state_id, 'form_id' => $form_id, 'trigger_id' => null])->get($columns)->first();
     }
 
-    public function getFormElements($predicate, $columns = null)
+    public function getFormElements($predicate, $columns = '*')
     {
         $form = BpmsForm::where($predicate)->with('variables')->first();
 
@@ -161,7 +157,7 @@ class FormService extends BaseService
     #endregion
 
     #region Variable 
-    public function getVariables($predicate = null, $columns = null)
+    public function getVariables($predicate = null, $columns = '*')
     {
         if (!$predicate)
             return BpmsVariable::where('ws_pro_id', $this->wid)->get($columns);
@@ -184,4 +180,3 @@ class FormService extends BaseService
     }
     #endregion
 }
-

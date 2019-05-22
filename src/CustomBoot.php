@@ -11,14 +11,14 @@ class CustomBoot
         $capsule->addConnection([
             'driver' => 'mysql',
             'host' => 'localhost',
-            'database' => $options['database'] ?: ProcessLogic::CONFIG_BOOT_DATABASE,
-            'username' => $options['username'] ?: ProcessLogic::CONFIG_BOOT_USERNAME,
-            'password' => $options['password'] ?: ProcessLogic::CONFIG_BOOT_PASSWORD,
+            'database' => $options['database'] ? : ProcessLogic::CONFIG_BOOT_DATABASE,
+            'username' => $options['username'] ? : ProcessLogic::CONFIG_BOOT_USERNAME,
+            'password' => $options['password'] ? : ProcessLogic::CONFIG_BOOT_PASSWORD,
             'charset' => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix' => '',
         ]);
         $capsule->bootEloquent();
     }
-}
 
+}

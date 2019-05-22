@@ -137,7 +137,7 @@ class CaseController
 
         //$this -> logic -> setStateMeta('Task_14clvf2',['users' => ['B'],'type' => 7]);
     }
-
+    
     /**
      * Display the specified resource.
      *
@@ -161,7 +161,8 @@ class CaseController
     }
 
     public function edit(BpmsCase $case)
-    { }
+    {
+    }
 
     public function update(Request $request, $id)
     {
