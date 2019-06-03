@@ -20,6 +20,8 @@ class CreateBpmsCasesTable extends Migration
             $table->integer('user_creator')->default(0);
             $table->integer('user_from')->default(0);
             $table->integer('user_current')->default(0);
+            $table->integer('position_from')->default(0);
+            $table->integer('position_current')->default(0);
             $table->integer('form_id')->nullable();                        
             $table->string('title');
             $table->text('description')->nullable();

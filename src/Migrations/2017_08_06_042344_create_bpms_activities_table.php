@@ -17,7 +17,8 @@ class CreateBpmsActivitiesTable extends Migration
             $table->increments('id');
             $table->integer('case_id');
             $table->unsignedTinyInteger('meta_type')->nullable();                        
-            $table->integer('user_id');                        
+            $table->integer('user_id');  
+            $table->integer('position_id')->nullable();                                              
             $table->integer('transition_id');
             $table->integer('part_id');            
             $table->integer('type');

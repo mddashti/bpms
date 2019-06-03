@@ -29,7 +29,14 @@ class CaseController
 
     public function checkForTimer()
     {
+
         return $this->logic->checkForTimer();
+    }
+
+    public function next()
+    {
+        $input = ['metaReq' => 1, 'nextPreview' => false, 'vars' => array('A' => 1, 'B' => 2, 'C' => 3)];
+        return $this->logic->goNext($input);
     }
 
     public function allCases(Request $request)
@@ -50,7 +57,7 @@ class CaseController
 
     public function store(Request $request)
     {
-        $this->validate(request(), [
+        $request->validate([
             'title' => 'required'
         ]);
 
@@ -137,7 +144,7 @@ class CaseController
 
         //$this -> logic -> setStateMeta('Task_14clvf2',['users' => ['B'],'type' => 7]);
     }
-    
+
     /**
      * Display the specified resource.
      *
@@ -150,9 +157,11 @@ class CaseController
         return view('case.show')->with(['wid' => $workflow->wid, 'case' => $case->id]);
     }
 
-    public function getStatus(BpmsCase $case)
+    public function getStatus(BpmsCase $case, Request $request)
     {
-        return $this->logic->getStatus();
+        $userId = $request->user;
+        return $this->logic->getStatus(['user' => $userId, 'state' => $case->state]);
+        //return $this->logic->getStatus();
     }
 
     public function pic(BpmsCase $case)
@@ -161,8 +170,7 @@ class CaseController
     }
 
     public function edit(BpmsCase $case)
-    {
-    }
+    { }
 
     public function update(Request $request, $id)
     {

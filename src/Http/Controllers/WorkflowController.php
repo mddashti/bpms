@@ -219,7 +219,7 @@ class WorkflowController
 
     public function store(Request $request)
     {
-        $this->validate(request(), [
+        $request->validate([
             'name' => 'required'
         ]);
 

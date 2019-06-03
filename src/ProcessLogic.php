@@ -20,7 +20,7 @@ class ProcessLogic implements ProcessLogicInterface
         CONFIG_FILTER_DUPLICATE_CASE = true,
         CONFIG_FILTER_CREATE_UNIQUE_PROCESS = true,
         CONFIG_NEXT_PREVIEW = false,
-        CONFIG_WORKFLOW_USE_FORM = true,
+        CONFIG_WORKFLOW_USE_FORM = false,
         CONFIG_BOOT_ELOQUENT = false,
         CONFIG_CHECK_USER = true,
         CONFIG_BOOT_DATABASE = 'bpms',
@@ -62,6 +62,8 @@ class ProcessLogic implements ProcessLogicInterface
     private $metaReq = null;
 
     private $user_name = 'NotSet';
+
+    private $user_position = 0;
 
     private $next_user = null;
 
@@ -320,8 +322,14 @@ class ProcessLogic implements ProcessLogicInterface
 
         $states = $this->dataRepo->findEntities(DataRepositoryInterface::BPMS_STATE, $predicate);
         foreach ($states as $state) {
-            if ($state->meta_type == 1 && $state->meta_value == $userId) {
+            if ($state->meta_type == static::META_TYPE_USER && $state->meta_value == $userId) {
                 return true;
+            } else if ($state->meta_type == static::META_TYPE_COMMON_POSITION || $state->meta_type == static::META_TYPE_CYCLIC_POSITION) {
+                $positions = isset($state->options['users']) ? $state->options['users'] : null;
+                $position = $this->givePositionOfUser($userId);
+                if (in_array($position, $positions)) {
+                    return true;
+                }
             }
             $users = isset($state->options['users']) ? $state->options['users'] : null;
             if ($users) {
@@ -504,7 +512,18 @@ class ProcessLogic implements ProcessLogicInterface
             }
         }
 
+        if ($this->isPositionBased($m->meta_type)) {
+            $position = $this->givePositionOfUser($metaReq);
+            $this->user_position = $this->givePositionOfUser($metaReq);
+            return $position == $m->meta_value;
+        }
+
         return true;
+    }
+
+    public function isPositionBased($meta_type)
+    {
+        return $meta_type == static::META_TYPE_COMMON_POSITION || $meta_type == static::META_TYPE_CYCLIC_POSITION;
     }
 
     public function getNextUserByType($state, $save = false, $rival = false)
@@ -517,8 +536,7 @@ class ProcessLogic implements ProcessLogicInterface
         try {
             if ($type == ProcessLogicInterface::META_TYPE_USER || $type == ProcessLogicInterface::META_TYPE_SUBPOSITION || $type == ProcessLogicInterface::META_TYPE_SUBUSER) {
                 return $state->meta_value;
-            }
-            if ($type == ProcessLogicInterface::META_TYPE_CYCLIC) {
+            } else if ($type == ProcessLogicInterface::META_TYPE_CYCLIC) {
                 $users = $state->options['users'];
                 $key = $state->meta_value;
                 if ($key !== null) {
@@ -534,22 +552,34 @@ class ProcessLogic implements ProcessLogicInterface
                     $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $state->wid, 'ws_pro_id' => $state->ws_pro_id], ['meta_value' => $state->meta_value]);
                 }
                 return $users[$state->meta_value];
-            }
-            if ($type == ProcessLogicInterface::META_TYPE_USER) {
+            } else if ($type == ProcessLogicInterface::META_TYPE_CYCLIC_POSITION) {
+                $positions = $state->options['users'];
+                $key = $state->meta_value;
+                if ($key !== null) {
+                    if (array_key_exists($key + 1, $positions)) {
+                        $state->meta_value = $key + 1;
+                    } else {
+                        $state->meta_value = 0;
+                    }
+                } else {
+                    $state->meta_value = 0;
+                }
+                if ($save) {
+                    $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $state->wid, 'ws_pro_id' => $state->ws_pro_id], ['meta_value' => $state->meta_value]);
+                }
+                return $this->selectUserOfPosition($positions[$state->meta_value],$rival);
+            } else if ($type == ProcessLogicInterface::META_TYPE_USER) {
                 return $state->meta_value;
-            }
-            if ($type == ProcessLogicInterface::META_TYPE_MANUAL) {
+            } else if ($type == ProcessLogicInterface::META_TYPE_MANUAL) {
                 return $this->user_manual ? $this->user_manual : $state->options['users'];
-            }
-            if ($type == ProcessLogicInterface::META_TYPE_VARIABLE) {
+            } else if ($type == ProcessLogicInterface::META_TYPE_VARIABLE) {
                 $user = $state->options['users'][0];
                 $vars = $this->caseService->getCaseOption('vars');
                 $user = $vars[$user] ?: ProcessLogicInterface::USER_NOT_EXIST;
                 if (!$user)
                     $this->setEvent(ProcessLogicInterface::WORKFLOW_EXCEPTION, 'USER_NOT_EXIST');
                 return $user;
-            }
-            if ($type == ProcessLogicInterface::META_TYPE_COMMON) {
+            } else if ($type == ProcessLogicInterface::META_TYPE_COMMON) {
                 $users = $state->options['users'];
 
                 if ($rival) {
@@ -559,8 +589,17 @@ class ProcessLogic implements ProcessLogicInterface
                 } else {
                     return $users;
                 }
-            }
-            if ($type == ProcessLogicInterface::META_TYPE_ARRAY_VARIABLE) {
+            } else if ($type == ProcessLogicInterface::META_TYPE_COMMON_POSITION) {
+                $positions = $state->options['users'];
+                if ($rival) {
+                    $position = $this->givePositionOfUser($rival);
+                    if (in_array($position, $positions)) {
+                        return $rival;
+                    }
+                } else {
+                    return $positions;
+                }
+            } else if ($type == ProcessLogicInterface::META_TYPE_ARRAY_VARIABLE) {
                 $users = $state->options['users'];
 
                 if ($rival) {
@@ -578,8 +617,7 @@ class ProcessLogic implements ProcessLogicInterface
                     }
                     return $temp;
                 }
-            }
-            if ($type == ProcessLogicInterface::META_TYPE_COMMON_VARIABLE) {
+            } else if ($type == ProcessLogicInterface::META_TYPE_COMMON_VARIABLE) {
                 $users = $state->options['users']; //users:["x"] // x:[10,5]
                 $var = $users[0];
 
@@ -602,21 +640,22 @@ class ProcessLogic implements ProcessLogicInterface
                     return $user;
                 }
             }
-            if ($type == ProcessLogicInterface::META_TYPE_COMMON_CUSTOM) {
-                $users = $state->options['users'];
+            // else if ($type == ProcessLogicInterface::META_TYPE_COMMON_CUSTOM) {
+            //     abort(501);
+            //     $users = $state->options['users'];
 
-                if ($rival) {
-                    if (in_array($rival, $this->getCustomUsers($users))) {
-                        return $rival;
-                    }
-                } else if ($save && !$rival) {
-                    $res = $this->getCustomUsers($users);
-                    return count($res) > 1 ? $res : $res[0];
-                } else {
-                    return $this->getCustomUsersText($users);
-                }
-            }
-            if ($type == ProcessLogicInterface::META_TYPE_SCRIPT_URL) {
+            //     if ($rival) {
+            //         if (in_array($rival, $this->getCustomUsers($users))) {
+            //             return $rival;
+            //         }
+            //     } else if ($save && !$rival) {
+            //         $res = $this->getCustomUsers($users);
+            //         return count($res) > 1 ? $res : $res[0];
+            //     } else {
+            //         return $this->getCustomUsersText($users);
+            //     }
+            // } 
+            else if ($type == ProcessLogicInterface::META_TYPE_SCRIPT_URL) {
                 $user = $state->options['users'][0];
                 $vars = $this->caseService->getCaseOption('vars');
                 $user = $vars[$user];
@@ -633,30 +672,55 @@ class ProcessLogic implements ProcessLogicInterface
         return ProcessLogicInterface::USER_NO_MATCH;  //No matches were found
     }
 
+
     #region Override by user
+
+    public function givePositionOfUser($userId)
+    {
+        return $userId;
+    }
+
+    public function giveUsersOfPosition($position)
+    {
+        return [1, 2];
+    }
+
+    public function selectUserOfPosition($position, $userId)
+    {
+        $users = $this->giveUsersOfPosition($position);
+        if (in_array($userId, $users))
+            return $userId;
+    }
+
     public function sendApi($url, $data)
     {
         return 200;
     }
 
     public function sendMessage($message, $user)
-    { }
+    {
+        //abort(501);
+    }
 
     public function beforeNext($state)
-    { }
+    {
+        //abort(501);
+    }
 
     public function afterNext($state, $event)
-    { }
-
-    public function getCustomUsers($users_option)
     {
-        //return [1,2,3,4,5,6,7,8,9,10];
+        //abort(501);
     }
 
-    public function getCustomUsersText($users_option)
-    {
-        //return 'USERS_OPTION_TEXT';
-    }
+    // public function getCustomUsers($users_option)
+    // {
+    //     return [1,2,3,4,5,6,7,8,9,10];
+    // }
+
+    // public function getCustomUsersText($users_option)
+    // {
+    //     return 'USERS_OPTION_TEXT';
+    // }
 
     public function getCustomUserDisplayName($user_id)
     {
@@ -816,6 +880,12 @@ class ProcessLogic implements ProcessLogicInterface
             }
         }
         return new ProcessResponse(true, $newCaseId, 'WORKFLOW_SUCCESS', 4);
+    }
+
+    public function findWorkflowStarts($ws_pro_id = null)
+    {
+        $predicate = ['position_state' => ProcessLogicInterface::POSITION_START, 'ws_pro_id' => $ws_pro_id];
+        return $this->dataRepo->findEntities(DataRepositoryInterface::BPMS_STATE, $predicate)->toArray();
     }
 
     public function import(ProcessLogic $object)
@@ -1394,18 +1464,19 @@ class ProcessLogic implements ProcessLogicInterface
 
     public function addActivityLog($data = null)
     {
+        if ($this->test)
+            return;
+
         if ($data) {
             $activityId = $this->dataRepo->createEntity(DataRepositoryInterface::BPMS_ACTIVITY, $data);
             return $activityId;
         }
 
-        if ($this->test)
-            return;
-
         $type = $this->getEvent();
         $case = $this->getCase();
         $last = $case->activity_id;
         $user_from = $this->getMetaReq();
+        $data['position_id'] = $this->givePositionOfUser($user_from);
         $data = ['case_id' => $this->id, 'type' => $type, 'transition_id' => $this->transitionFired, 'comment' => $this->comment, 'pre' => $last, 'part_id' => $this->partId ?: 0, 'user_id' => $user_from];
         $user_current = $this->getNextUser();
 
@@ -1414,6 +1485,7 @@ class ProcessLogic implements ProcessLogicInterface
             $opts['users'] = $user_current;
         } else {
             $data['user_id'] = $user_current;
+            //$data['position_current'] = $this->givePositionOfUser($user_current);
         }
 
         if ($this->next_state) {
@@ -1698,6 +1770,7 @@ class ProcessLogic implements ProcessLogicInterface
         $data['user_from'] = $this->getMetaReq();
         $data['form_id'] = $this->next_form;
         $userId = $this->getNextUser();
+        $data['position_from'] = $this->givePositionOfUser($data['user_from']);
 
         if (is_array($userId)) {
             $data['user_current'] = ProcessLogicInterface::USER_COMMAN;
@@ -1705,6 +1778,7 @@ class ProcessLogic implements ProcessLogicInterface
             $data['system_options']['users'] = $userId;
         } else {
             $data['user_current'] = $userId;
+            $data['position_current'] = $this->givePositionOfUser($userId);
         }
 
         if ($this->status == "parted") {

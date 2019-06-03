@@ -20,9 +20,11 @@ class RouteRegistrar
 
     public function forCase()
     {
-        $this->router->group(['prefix' => 'case'], function ($router) {
+        $this->router->get('cases', 'CaseController@allCases');
 
-            $router->get('/next/{case}', ['uses' => 'CaseController@next']);
+        $this->router->resource('case', 'CaseController');
+
+        $this->router->group(['prefix' => 'case'], function ($router) {
 
             $router->get('{case}/user/{state}', 'CaseController@getCaseUser');
 
@@ -54,6 +56,8 @@ class RouteRegistrar
 
     public function forWorkflow()
     {
+        $this->router->resource('workflow', 'WorkflowController');
+
         $this->router->prefix('workflows')->group(function ($router) {
 
             $router->get('all', 'WorkflowController@getWorkflows')->name('workflow.all');
