@@ -301,6 +301,12 @@ class ProcessLogic implements ProcessLogicInterface
             if ($state->meta_type == 1 && $state->meta_value == $userId) { //explicit user
                 $res[] = $state;
                 continue;
+            } else if ($this->isPositionBased($state->meta_type)) {
+                $positions = isset($state->options['users']) ? $state->options['users'] : null;
+                $position = $this->givePositionOfUser($userId);
+                if (in_array($position, $positions)) {
+                    $res[] = $state;
+                }
             }
 
             $users = isset($state->options['users']) ? $state->options['users'] : null; //implicit
@@ -453,6 +459,8 @@ class ProcessLogic implements ProcessLogicInterface
                 $data = ['meta_value' => is_array($userId) ? ProcessLogicInterface::USER_COMMAN : $userId, 'meta_type' => $currentState->meta_type];
                 $this->setNextUser($userId);
 
+                if ($this->isPositionBased($currentState->meta_type) && !is_array($userId))
+                    $data['meta_value'] = $this->givePositionOfUser($userId);
                 return $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_META, $predicate, $data, true);
             }
         }
@@ -502,6 +510,12 @@ class ProcessLogic implements ProcessLogicInterface
             return true;
         }
 
+        if ($this->isPositionBased($m->meta_type)) {
+            $position = $this->givePositionOfUser($metaReq);
+            $this->user_position = $position;
+            return $position == $m->meta_value;
+        }
+
         if ($typeReq) {
             if ($m->meta_type != $typeReq || $m->meta_value != $metaReq) {
                 return false;
@@ -510,12 +524,6 @@ class ProcessLogic implements ProcessLogicInterface
             if ($m->meta_value != $metaReq) {
                 return false;
             }
-        }
-
-        if ($this->isPositionBased($m->meta_type)) {
-            $position = $this->givePositionOfUser($metaReq);
-            $this->user_position = $this->givePositionOfUser($metaReq);
-            return $position == $m->meta_value;
         }
 
         return true;
@@ -567,7 +575,7 @@ class ProcessLogic implements ProcessLogicInterface
                 if ($save) {
                     $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $state->wid, 'ws_pro_id' => $state->ws_pro_id], ['meta_value' => $state->meta_value]);
                 }
-                return $this->selectUserOfPosition($positions[$state->meta_value],$rival);
+                return $this->selectUserOfPosition($positions[$state->meta_value], $rival);
             } else if ($type == ProcessLogicInterface::META_TYPE_USER) {
                 return $state->meta_value;
             } else if ($type == ProcessLogicInterface::META_TYPE_MANUAL) {
@@ -677,16 +685,17 @@ class ProcessLogic implements ProcessLogicInterface
 
     public function givePositionOfUser($userId)
     {
-        return $userId;
+        return $userId + 1;
     }
 
     public function giveUsersOfPosition($position)
     {
-        return [1, 2];
+        return [1, $position, $position + 1];
     }
 
     public function selectUserOfPosition($position, $userId)
     {
+        $userId = $userId ?: $this->metaReq;
         $users = $this->giveUsersOfPosition($position);
         if (in_array($userId, $users))
             return $userId;
@@ -1476,8 +1485,8 @@ class ProcessLogic implements ProcessLogicInterface
         $case = $this->getCase();
         $last = $case->activity_id;
         $user_from = $this->getMetaReq();
-        $data['position_id'] = $this->givePositionOfUser($user_from);
         $data = ['case_id' => $this->id, 'type' => $type, 'transition_id' => $this->transitionFired, 'comment' => $this->comment, 'pre' => $last, 'part_id' => $this->partId ?: 0, 'user_id' => $user_from];
+        $data['position_id'] = $this->givePositionOfUser($user_from);
         $user_current = $this->getNextUser();
 
         if (is_array($user_current)) {
@@ -1625,7 +1634,11 @@ class ProcessLogic implements ProcessLogicInterface
         $userId = $this->getNextUserByType($s->entity, $save = true, $rival = $user);
         if (!empty($userId)) {
             $predicate = ['element_name' => $state, 'case_id' => $this->id];
-            $data = ['meta_value' => $userId];
+
+            if ($this->isPositionBased($s->entity->meta_type))
+                $data = ['meta_value' => $this->givePositionOfUser($userId)];
+            else
+                $data = ['meta_value' => $userId];
             $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_META, $predicate, $data);
             if ($this->status == 'parted') {
                 return $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_PART, ['state' => $state], ['status' => 'working', 'user_current' => $userId]);
