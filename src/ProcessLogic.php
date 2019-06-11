@@ -1886,7 +1886,7 @@ class ProcessLogic implements ProcessLogicInterface
 
                         if ($ret === -1) //Exception occurred
                         {
-                            $this->setEvent(ProcessLogicInterface::WORKFLOW_EVALUATION_ERROR, $e->getMessage());
+                            $this->setEvent(ProcessLogicInterface::WORKFLOW_EVALUATION_ERROR, "WORKFLOW_EVALUATION_ERROR");
                             return $this->saveChanges(ProcessLogicInterface::WORKFLOW_EVALUATION_ERROR, false);
                         }
 
