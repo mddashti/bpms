@@ -4,9 +4,6 @@ use Niyam\Bpms\Model\BpmsCase;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
-
-
-
 class BaseService implements DataRepositoryInterface
 {
     protected $wid;
@@ -183,5 +180,25 @@ class BaseService implements DataRepositoryInterface
         } catch (\Exception $e) {
             return -1;
         }
+    }
+
+    public function givePositionOfUser($userId)
+    {
+        return $userId + 1;
+    }
+
+    public function givePositionsOfUser($userId)
+    {
+        return [];
+    }
+
+    public function giveUsersOfPosition($position)
+    {
+        return [1, $position, $position + 1];
+    }
+
+    public function isPositionBased($meta_type)
+    {
+        return $meta_type == static::META_TYPE_COMMON_POSITION || $meta_type == static::META_TYPE_CYCLIC_POSITION;
     }
 }

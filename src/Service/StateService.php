@@ -1,14 +1,39 @@
 <?php namespace Niyam\Bpms\Service;
 
 use Niyam\Bpms\Data\BaseService;
+use Niyam\Bpms\Model\BpmsState;
 
 class StateService extends BaseService
 {
     protected $formService;
 
-    public function __construct(FormService $formService)
+    protected $model;
+
+    public function __construct(FormService $formService, BpmsState $model)
     {
         $this->formService = $formService;
+        $this->model = $model;
+    }
+
+    public function findPositionsOfUserInStart($userId, $state)
+    {
+        $positionsOfUser = $this->givePositionsOfUser($userId);
+        $positionsOfState = $this->findPositionsOfState($state);
+
+        return array_intersect($positionsOfUser, $positionsOfState);
+    }
+
+    public function findState($predicate)
+    {
+        return $this->model->where($predicate)->first();
+    }
+
+    public function findPositionsOfState($state)
+    {
+        $foundState = $this->findState(['wid' => $state]);
+        if (!$this->isPositionBased($foundState->meta_type))
+            return [];
+        return $foundState->options['users'];
     }
 
     public function getCurrentState($state = null)
@@ -59,7 +84,7 @@ class StateService extends BaseService
             $opts['users'] = $data['users'];
         }
 
-    
+
         //Sequential task
         if (isset($data['x'])) {
             $opts['x'] = $data['x'];
@@ -99,11 +124,11 @@ class StateService extends BaseService
         if (isset($data['name'])) {
             $opts['name'] = $data['name'];
         }
-        
+
         //To add one form to forms
         if (isset($data['form'])) {
             $form_id = $data['form']['form_id'];
-           
+
             $this->formService->updateFormOfState(['state_id' => $state->id, 'form_id' => $form_id], $data['form']);
 
             if (isset($opts['forms']) ? !in_array($form_id, $opts['forms']) : true)
@@ -144,7 +169,7 @@ class StateService extends BaseService
             return;
 
         $opts = $meta->options;
-        
+
         $res = array();
 
         if (isset($opts['x'])) {
@@ -217,7 +242,7 @@ class StateService extends BaseService
         }
     }
 
-    public function updateStateOptions($stateWID, $caseId)//is used in subprocess!!!
+    public function updateStateOptions($stateWID, $caseId) //is used in subprocess!!!
     {
         $predicate = ['wid' => $stateWID, 'ws_pro_id' => $this->wid];
         $state = $this->findEntity(static::BPMS_STATE, ['wid' => $stateWID]);
@@ -227,4 +252,3 @@ class StateService extends BaseService
         $this->updateEntity(static::BPMS_STATE, $predicate, ['options' => $opts]);
     }
 }
-
