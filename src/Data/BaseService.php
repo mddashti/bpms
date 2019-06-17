@@ -22,7 +22,7 @@ class BaseService implements DataRepositoryInterface
     {
         return $this->model->where($predicate)->get();
     }
-    
+
     public function setWorkflowId($wid)
     {
         $this->wid = $wid;
@@ -55,7 +55,6 @@ class BaseService implements DataRepositoryInterface
         if ($with)
             return (new $entity())->with($with)->where($predicate)->get($columns)->first();
         return (new $entity())->where($predicate)->get($columns)->first();
-
     }
 
     public function findEntities($entity, $predicate, $columns = '*', $with = null)
@@ -79,7 +78,7 @@ class BaseService implements DataRepositoryInterface
 
     public function findEntitiesByOrder($entity, $predicate, $field, $order)
     {
-        if($predicate)
+        if ($predicate)
             return (new $entity())->where($predicate)->orderby($field, $order)->get();
         return (new $entity())->orderby($field, $order)->get();
     }
@@ -180,7 +179,7 @@ class BaseService implements DataRepositoryInterface
         $language = new ExpressionLanguage();
         if (!$condition)
             return false;
-        $vars = $vars ? : array();
+        $vars = $vars ?: array();
 
         try {
             return $language->evaluate($condition, $vars);
@@ -206,6 +205,6 @@ class BaseService implements DataRepositoryInterface
 
     public function isPositionBased($meta_type)
     {
-        return $meta_type == static::META_TYPE_COMMON_POSITION || $meta_type == static::META_TYPE_CYCLIC_POSITION;
+        return $meta_type == 21 || $meta_type == 22;
     }
 }

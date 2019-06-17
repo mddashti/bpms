@@ -17,14 +17,14 @@ class StateService extends BaseService
 
     public function getUserStarts($userId, $ws_pro_id = null)
     {
-        $predicate = ['position_state' => ProcessLogicInterface::POSITION_START];
+        $predicate = ['position_state' => 0];
         if ($ws_pro_id) {
             $predicate['ws_pro_id'] = $ws_pro_id;
         }
-        $states = BpmsState::with('workflow')->where($predicate)->get();
+        $states = BpmsState::with('workflow:id,name')->where($predicate)->get();
         $res = array();
         foreach ($states as $state) {
-            $state->isPositionBased = FALSE;
+            $state->is_position = FALSE;
             if ($state->meta_type == 1 && $state->meta_value == $userId) { //explicit user
                 $res[] = $state;
                 continue;
@@ -32,7 +32,7 @@ class StateService extends BaseService
                 $positions = isset($state->options['users']) ? $state->options['users'] : null;
                 $position = $this->givePositionOfUser($userId);
                 if (in_array($position, $positions)) {
-                    $state->isPositionBased = TRUE;
+                    $state->is_position = TRUE;
                     $res[] = $state;
                 }
             }
