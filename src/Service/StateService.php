@@ -15,6 +15,38 @@ class StateService extends BaseService
         $this->model = $model;
     }
 
+    public function getUserStarts($userId, $ws_pro_id = null)
+    {
+        $predicate = ['position_state' => ProcessLogicInterface::POSITION_START];
+        if ($ws_pro_id) {
+            $predicate['ws_pro_id'] = $ws_pro_id;
+        }
+        $states = BpmsState::with('workflow')->where($predicate)->get();
+        $res = array();
+        foreach ($states as $state) {
+            $state->isPositionBased = FALSE;
+            if ($state->meta_type == 1 && $state->meta_value == $userId) { //explicit user
+                $res[] = $state;
+                continue;
+            } else if ($this->isPositionBased($state->meta_type)) {
+                $positions = isset($state->options['users']) ? $state->options['users'] : null;
+                $position = $this->givePositionOfUser($userId);
+                if (in_array($position, $positions)) {
+                    $state->isPositionBased = TRUE;
+                    $res[] = $state;
+                }
+            }
+
+            $users = isset($state->options['users']) ? $state->options['users'] : null; //implicit
+            if ($users) {
+                if (in_array($userId, $users)) {
+                    $res[] = $state;
+                }
+            }
+        }
+        return $res;
+    }
+
     public function findPositionsOfUserInStart($userId, $state)
     {
         $positionsOfUser = $this->givePositionsOfUser($userId);

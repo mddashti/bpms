@@ -16,6 +16,13 @@ class BaseService implements DataRepositoryInterface
 
     protected $test = true;
 
+    protected $model;
+
+    public function findWhere($predicate)
+    {
+        return $this->model->where($predicate)->get();
+    }
+    
     public function setWorkflowId($wid)
     {
         $this->wid = $wid;

@@ -34,11 +34,11 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
     protected $wid = 0;
 
-    private $workflow;
+    protected $workflow;
 
-    private $case;
+    protected $case;
 
-    private $test = false;
+    protected $test = false;
 
     private $status;
 
