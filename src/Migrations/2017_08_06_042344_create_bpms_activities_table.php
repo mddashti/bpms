@@ -16,6 +16,7 @@ class CreateBpmsActivitiesTable extends Migration
         Schema::create('bpms_activities', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('case_id');
+            $table->integer('original_case_id')->default(0);
             $table->unsignedTinyInteger('meta_type')->nullable();                        
             $table->integer('user_id');  
             $table->integer('position_id')->nullable();                                              

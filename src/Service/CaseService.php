@@ -1,4 +1,6 @@
-<?php namespace Niyam\Bpms\Service;
+<?php
+
+namespace Niyam\Bpms\Service;
 
 use Niyam\Bpms\Data\BaseService;
 use Niyam\Bpms\Model\BpmsCase;
@@ -59,6 +61,8 @@ class CaseService extends BaseService
     public function getCaseOption($option, $filter = null, $caseId = null)
     {
         $caseId = $caseId ? $caseId : $this->cid;
+        if (!$caseId)
+            return null;
         $found = $this->getEntity(static::BPMS_CASE, $caseId);
         $opts = $found->options;
 

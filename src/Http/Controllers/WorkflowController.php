@@ -207,9 +207,9 @@ class WorkflowController
         $stateToSet = BpmsState::findOrFail($startId);
 
         // 4 is  META_TYPE_SUBPROCESS
-        $data = ['start' => $stateToSet->wid, 'type' => 4, 'value' => $stateToSet->ws_pro_id];
-        $this->logic->setWorkflow($workflow);
-        $this->logic->setStateMeta($state, $data);
+        $data = ['start' => $stateToSet->wid, 'type' => 4, 'value' => $stateToSet->ws_pro_id, 'in_vars' => ['A', 'B'], 'out_vars' => ['A']];
+        $this->sservice->setWorkflow($workflow);
+        $this->sservice->setStateMeta($state, $data);
     }
 
     public function create()

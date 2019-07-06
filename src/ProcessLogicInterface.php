@@ -83,7 +83,10 @@ interface ProcessLogicInterface
         WORKFLOW_NO_FORM = 25,
         WORKFLOW_NO_MATCH_FORM = 26,
         WORKFLOW_PREVIEW = 27,
-        WORKFLOW_CHANGE_USER = 28;
+        WORKFLOW_CHANGE_USER = 28,
+        WORKFLOW_SUBPROCESS = 29,
+        WORKFLOW_IS_IN_SUBPROCESS = 30;
+
 
     public function setCase($case, $baseTable = false);
 

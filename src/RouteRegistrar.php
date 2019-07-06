@@ -76,6 +76,8 @@ class RouteRegistrar
 
             $router->get('{workflow}/subprocess/{state}', 'WorkflowController@getSubprocessMeta');
 
+            $router->post('{workflow}/subprocess', 'WorkflowController@postSubprocessMeta');
+
             $router->get('{workflow}/test/nextstep/{state}', 'WorkflowController@getNextStep');
 
             $router->post('{workflow}/data', 'WorkflowController@postWorkflowdata');
@@ -85,8 +87,6 @@ class RouteRegistrar
             $router->post('{workflow}/user/{state}', 'WorkflowController@postWorkflowUser');
 
             $router->post('{workflow}/condition/{gate}', 'WorkflowController@postWorkflowCondition');
-
-            $router->post('{workflow}/subprocess', 'WorkflowController@postSubprocessMeta');
         });
     }
 }

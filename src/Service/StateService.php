@@ -1,4 +1,6 @@
-<?php namespace Niyam\Bpms\Service;
+<?php
+
+namespace Niyam\Bpms\Service;
 
 use Niyam\Bpms\Data\BaseService;
 use Niyam\Bpms\Model\BpmsState;
@@ -116,7 +118,6 @@ class StateService extends BaseService
             $opts['users'] = $data['users'];
         }
 
-
         //Sequential task
         if (isset($data['x'])) {
             $opts['x'] = $data['x'];
@@ -143,6 +144,8 @@ class StateService extends BaseService
         //is used for subprocess
         if (isset($data['start'])) {
             $opts['start'] = $data['start'];
+            $opts['in_vars'] = isset($data['in_vars']) ? $data['in_vars'] : [];
+            $opts['out_vars'] = isset($data['out_vars']) ? $data['out_vars'] : [];
         }
 
         if (isset($data['users_meta'])) {
