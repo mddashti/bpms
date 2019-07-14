@@ -174,7 +174,7 @@ interface ProcessLogicInterface
 
     public function setPart($partId = null);
 
-    public function saveChanges($type, $message = null);
+    public function saveChanges($type, $message = true);
 
     public function saveWorkflow();
 
