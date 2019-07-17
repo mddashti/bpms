@@ -17,6 +17,8 @@ class CreateBpmsCasesTable extends Migration
             $table->increments('id');
             $table->integer('ws_pro_id');
             $table->string('cid')->nullable();
+            $table->integer('parent_case')->default(0);
+            $table->integer('transition_id')->default(0);
             $table->integer('user_creator')->default(0);
             $table->integer('user_from')->default(0);
             $table->integer('user_current')->default(0);

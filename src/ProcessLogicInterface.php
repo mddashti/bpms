@@ -52,7 +52,8 @@ interface ProcessLogicInterface
         USER_SCRIPT_URL = -5;
 
     const
-        SYSTEM_CASE = 0;
+        SYSTEM_CASE = 0,
+        PART_CASE = -1;
 
     const
         WORKFLOW_CREATED = 0,
@@ -85,7 +86,8 @@ interface ProcessLogicInterface
         WORKFLOW_PREVIEW = 27,
         WORKFLOW_CHANGE_USER = 28,
         WORKFLOW_SUBPROCESS = 29,
-        WORKFLOW_IS_IN_SUBPROCESS = 30;
+        WORKFLOW_IS_IN_SUBPROCESS = 30,
+        WORKFLOW_IN_PART_MODE = 31;
 
 
     public function setCase($case, $baseTable = false);
@@ -115,11 +117,11 @@ interface ProcessLogicInterface
 
     public function createWorkflow($inputArray);
 
-    public function getSubprocessMetaWorkflow($workflow, $state);
+    // public function getSubprocessMetaWorkflow($workflow, $state);
 
     public function setSubProcessMeta($stateWID, $caseId);
 
-    public function loadSubProcess($caseId);
+    //public function loadSubProcess($caseId);
 
     public function findWorkflowPart($predicate);
 
@@ -172,9 +174,9 @@ interface ProcessLogicInterface
 
     public function getBaseState();
 
-    public function setPart($partId = null);
+    // public function setPart($partId = null);
 
-    public function saveChanges($type, $message = null);
+    public function saveChanges($type, $changed = true);
 
     public function saveWorkflow();
 

@@ -1,4 +1,6 @@
-<?php namespace Niyam\Bpms\Data;
+<?php
+
+namespace Niyam\Bpms\Data;
 
 use Niyam\Bpms\Model\BpmsCase;
 use Illuminate\Support\Facades\DB;

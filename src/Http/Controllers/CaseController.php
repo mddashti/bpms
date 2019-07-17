@@ -29,7 +29,6 @@ class CaseController
 
     public function checkForTimer()
     {
-
         return $this->logic->checkForTimer();
     }
 
@@ -41,6 +40,7 @@ class CaseController
 
     public function allCases(Request $request)
     {
+        return BpmsCase::with('workflow')->get();
         $userId = $request->user()->id;
         return $this->caseRepo->getUserCases($userId);
     }
