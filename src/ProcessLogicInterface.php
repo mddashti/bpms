@@ -119,7 +119,7 @@ interface ProcessLogicInterface
 
     // public function getSubprocessMetaWorkflow($workflow, $state);
 
-    public function setSubProcessMeta($stateWID, $caseId);
+    // public function setSubProcessMeta($stateWID, $caseId);
 
     //public function loadSubProcess($caseId);
 
@@ -127,7 +127,7 @@ interface ProcessLogicInterface
 
     public function countWorkflowPart();
 
-    public function deleteCurrentPart();
+    // public function deleteCurrentPart();
 
     public function getCurrentState($state = null);
 
@@ -160,7 +160,7 @@ interface ProcessLogicInterface
 
     // public function getStateMeta($stateWID = null, $predicate = null, $columns = '*');
 
-    public function updateStateOptions($stateWID, $caseId);
+    // public function updateStateOptions($stateWID, $caseId);
 
     public function getMetaOptions($stateWID, $option, $data);
 
@@ -182,7 +182,7 @@ interface ProcessLogicInterface
 
     public function saveCase();
 
-    public function savePart();
+    // public function savePart();
 
     public function goNext($inputArray);
 

@@ -13,7 +13,7 @@ class CreateBpmsWorkflowsTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms_workflows', function (Blueprint $table) {
+        Schema::create('bpms.bpms_workflows', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('ws_id')->nullable();
             $table->string('name');

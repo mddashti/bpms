@@ -10,6 +10,8 @@ class BpmsForm extends Model
     use SoftDeletes;
 
     protected $guarded = ['id'];
+    protected $table = 'bpms.bpms_forms';
+
 
     protected $hidden = ['stateConfigs'];
 
@@ -40,7 +42,7 @@ class BpmsForm extends Model
 
     public function variables()
     {
-        return $this->belongsToMany(BpmsVariable::class, 'bpms_elements', 'form_id', 'variable_id')->withPivot('element_name', 'element_type')->with('fetch');
+        return $this->belongsToMany(BpmsVariable::class, 'bpms.bpms_elements', 'form_id', 'variable_id')->withPivot('element_name', 'element_type')->with('fetch');
     }
 
     // public function fetches()

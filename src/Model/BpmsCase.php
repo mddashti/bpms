@@ -9,6 +9,8 @@ class BpmsCase extends Model
 {
     use SoftDeletes;
     protected $guarded = ['id'];
+    protected $table = 'bpms.bpms_cases';
+
     protected $casts = [
         'options' => 'array',
         'system_options' => 'array',

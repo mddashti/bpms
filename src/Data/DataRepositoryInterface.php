@@ -13,8 +13,6 @@ interface DataRepositoryInterface
         BPMS_FETCH = 'Niyam\Bpms\Model\BpmsFetch',
         BPMS_STATE_CONFIG = 'Niyam\Bpms\Model\BpmsStateConfig',
         BPMS_VARIABLE = 'Niyam\Bpms\Model\BpmsVariable',
-        BPMS_PART = 'Niyam\Bpms\Model\BpmsCasePart',
-        BPMS_FAKEPART = 'Niyam\Bpms\Model\BpmsPart',
         BPMS_TYPE = 'Niyam\Bpms\Model\BpmsType',
         BPMS_ACTIVITY = 'Niyam\Bpms\Model\BpmsActivity',
         BPMS_WORKFLOW = 'Niyam\Bpms\Model\BpmsWorkflow',

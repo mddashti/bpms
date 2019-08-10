@@ -13,7 +13,7 @@ class CreateBpmsElementsTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms_elements', function (Blueprint $table) {
+        Schema::create('bpms.bpms_elements', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('form_id');
             $table->string('element_name');
@@ -32,6 +32,6 @@ class CreateBpmsElementsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bpms_elements');
+        Schema::dropIfExists('bpms.bpms_elements');
     }
 }

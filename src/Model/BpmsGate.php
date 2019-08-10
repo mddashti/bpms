@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class BpmsGate extends Model
 {
     protected $guarded = ['id'];
+    protected $table = 'bpms.bpms_gates';
+
     protected $casts = [
         'options' => 'array',
     ];

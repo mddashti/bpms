@@ -13,7 +13,7 @@ class CreateBpmsTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms_types', function (Blueprint $table) {
+        Schema::create('bpms.bpms_types', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id');
             $table->string('name');
@@ -28,6 +28,6 @@ class CreateBpmsTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bpms_types');
+        Schema::dropIfExists('bpms.bpms_types');
     }
 }

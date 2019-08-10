@@ -13,7 +13,7 @@ class CreateBpmsStatesTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms_states', function (Blueprint $table) {
+        Schema::create('bpms.bpms_states', function (Blueprint $table) {
             $table->increments('id');
             $table->string('wid');
             $table->string('type');
@@ -38,6 +38,6 @@ class CreateBpmsStatesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bpms_states');
+        Schema::dropIfExists('bpms.bpms_states');
     }
 }

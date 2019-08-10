@@ -13,7 +13,7 @@ class CreateBpmsTimersTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms_timers', function (Blueprint $table) {
+        Schema::create('bpms.bpms_timers', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('case_id');
             $table->integer('part_id')->nullable();
@@ -30,6 +30,6 @@ class CreateBpmsTimersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bpms_timers');
+        Schema::dropIfExists('bpms.bpms_timers');
     }
 }

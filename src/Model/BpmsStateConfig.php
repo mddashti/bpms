@@ -10,6 +10,8 @@ class BpmsStateConfig extends Model
 {
     use SoftDeletes;
     protected $guarded = ['id'];
+    protected $table = 'bpms.bpms_state_configs';
+
         
     protected $casts = [
        'options' => 'array',

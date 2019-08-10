@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class BpmsTransition extends Model
 {
     protected $guarded = ['id'];
+    protected $table = 'bpms.bpms_transitions';
+
     
     protected $casts = [
         'options' => 'array',

@@ -1,4 +1,6 @@
-<?php namespace Niyam\Bpms;
+<?php
+
+namespace Niyam\Bpms;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -10,8 +12,7 @@ class BpmsServiceProvider extends ServiceProvider
      * @return void
      */
     public function boot()
-    {
-    }
+    { }
 
     /**
      * Register the application services.
@@ -20,8 +21,9 @@ class BpmsServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind('Niyam\Bpms\Data\DataRepositoryInterface', 'Niyam\Bpms\Service\ProcessService');        
-        $this->registerMigrations();        
+        $this->app->bind('Niyam\Bpms\Data\DataRepositoryInterface', 'Niyam\Bpms\Service\ProcessService');
+        if (env('BPMS_ENABLE_MIGRATION', false))
+            $this->registerMigrations();
     }
 
     protected function registerMigrations()

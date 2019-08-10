@@ -13,7 +13,7 @@ class CreateBpmsGatesTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms_gates', function (Blueprint $table) {
+        Schema::create('bpms.bpms_gates', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('ws_pro_id');
             $table->string('type')->nullable();
@@ -32,6 +32,6 @@ class CreateBpmsGatesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bpms_gates');
+        Schema::dropIfExists('bpms.bpms_gates');
     }
 }

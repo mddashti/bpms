@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class BpmsActivity extends Model
 {
     protected $guarded = ['id'];
+    protected $table = 'bpms.bpms_activities';
 
     protected $casts = [
         'options' => 'array',

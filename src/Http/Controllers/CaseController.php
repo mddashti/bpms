@@ -1,4 +1,5 @@
 <?php
+
 namespace Niyam\Bpms\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -34,7 +35,7 @@ class CaseController
 
     public function next()
     {
-        $input = ['metaReq' => 1, 'nextPreview' => false, 'vars' => array('A' => 1, 'B' => 2, 'C' => 3)];
+        $input = ['metaReq' => 1, 'nextPreview' => true, 'vars' => array('A' => 1, 'B' => 2, 'C' => 3)];
         return $this->logic->goNext($input);
     }
 
@@ -121,28 +122,7 @@ class CaseController
     public function testMeDude(BpmsCase $case, Request $request)
     {
         return $users = App\User::paginate(15);
-
-        //$this-> logic -> setCase($case);
-        //return $this -> logic -> getActivityLog();
-        //return $this -> logic -> getStatus(['user' => 6, 'state' => 'Task_1q5k7bx']);
-        //return $this -> logic -> getCases(['type' => 1]);
-
-        // return $this->logic->getWorkflows();
-        // $language = new ExpressionLanguage();
         return $this->logic->getStatus(['user' => 1, 'state' => 'Task_1wguegx']);
-        // $x = [1, 2, 3];
-        // //$A = 1;
-        // try {
-        //     //$ret = $language->evaluate("6 in x or 1 in x", ['x' => [1,2,3]]);
-        //     $ret = $language->evaluate("x==0", ['x' => false]);
-
-        // } catch (\Exception $e) {
-        //     return $e->getMessage();
-        // }
-
-        // return $ret ? 'true' : 'false';
-
-        //$this -> logic -> setStateMeta('Task_14clvf2',['users' => ['B'],'type' => 7]);
     }
 
     /**
