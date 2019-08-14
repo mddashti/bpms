@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class BpmsFetch extends Model
 {
     protected $guarded = ['id'];
-    protected $table = 'bpms.bpms_fetches';
+    //protected $table = 'bpms.bpms_fetches';
 
 
     public function variable()

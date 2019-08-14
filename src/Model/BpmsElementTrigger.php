@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class BpmsElementTrigger extends Model
 {
     protected $guarded = ['id'];
-    protected $table = 'bpms.bpms_element_triggers';
+    //protected $table = 'bpms.bpms_element_triggers';
 
     protected $casts = [
         'options' => 'array',

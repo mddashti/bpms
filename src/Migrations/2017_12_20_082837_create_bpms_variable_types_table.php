@@ -13,7 +13,7 @@ class CreateBpmsVariableTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms.bpms_variable_types', function (Blueprint $table) {
+        Schema::create('bpms_variable_types', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
         });
@@ -26,6 +26,6 @@ class CreateBpmsVariableTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bpms.bpms_variable_types');
+        Schema::dropIfExists('bpms_variable_types');
     }
 }

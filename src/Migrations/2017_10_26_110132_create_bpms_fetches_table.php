@@ -13,7 +13,7 @@ class CreateBpmsFetchesTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms.bpms_fetches', function (Blueprint $table) {
+        Schema::create('bpms_fetches', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('dbconnection_id');
             $table->text('query');
@@ -28,6 +28,6 @@ class CreateBpmsFetchesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bpms.bpms_fetches');
+        Schema::dropIfExists('bpms_fetches');
     }
 }

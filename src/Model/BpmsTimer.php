@@ -10,7 +10,7 @@ class BpmsTimer extends Model
 {
     use SoftDeletes;
     protected $guarded = ['id'];
-    protected $table = 'bpms.bpms_timers';
+    //protected $table = 'bpms.bpms_timers';
 
 
 }

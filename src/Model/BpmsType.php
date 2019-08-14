@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class BpmsType extends Model
 {
     protected $guarded = ['id'];
-    protected $table = 'bpms.bpms_types';
+    //protected $table = 'bpms.bpms_types';
 
     protected $visible = ['id','name'];
 

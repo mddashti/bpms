@@ -13,7 +13,7 @@ class CreateBpmsVariablesTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms.bpms_variables', function (Blueprint $table) {
+        Schema::create('bpms_variables', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('ws_pro_id');
             $table->string('name')->unique();
@@ -35,6 +35,6 @@ class CreateBpmsVariablesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bpms.bpms_variables');
+        Schema::dropIfExists('bpms_variables');
     }
 }

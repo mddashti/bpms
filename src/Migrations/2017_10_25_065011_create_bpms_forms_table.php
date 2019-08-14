@@ -13,7 +13,7 @@ class CreateBpmsFormsTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms.bpms_forms', function (Blueprint $table) {
+        Schema::create('bpms_forms', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('ws_pro_id');
             $table->string('title')->unique();
@@ -33,6 +33,6 @@ class CreateBpmsFormsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bpms.bpms_forms');
+        Schema::dropIfExists('bpms_forms');
     }
 }

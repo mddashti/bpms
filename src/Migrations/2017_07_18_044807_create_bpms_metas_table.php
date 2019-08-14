@@ -13,7 +13,7 @@ class CreateBpmsMetasTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms.bpms_metas', function (Blueprint $table) {
+        Schema::create('bpms_metas', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('element_type')->default(1);
             $table->integer('element_id')->default(0);
@@ -33,6 +33,6 @@ class CreateBpmsMetasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bpms.bpms_metas');
+        Schema::dropIfExists('bpms_metas');
     }
 }

@@ -13,7 +13,7 @@ class CreateBpmsTransitionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms.bpms_transitions', function (Blueprint $table) {
+        Schema::create('bpms_transitions', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('ws_pro_id');
             $table->tinyInteger('type')->default(0);

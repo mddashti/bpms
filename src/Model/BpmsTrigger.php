@@ -11,7 +11,7 @@ class BpmsTrigger extends Model
     use SoftDeletes;
 
     protected $guarded = ['id'];
-    protected $table = 'bpms.bpms_triggers';
+    //protected $table = 'bpms.bpms_triggers';
 
     
     protected $casts = [

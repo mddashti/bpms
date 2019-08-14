@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class BpmsElement extends Model
 {
     protected $guarded = ['id'];
-    protected $table = 'bpms.bpms_elements';
+    //protected $table = 'bpms.bpms_elements';
 
 
     protected $casts = [

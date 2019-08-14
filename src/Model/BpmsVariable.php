@@ -11,7 +11,7 @@ class BpmsVariable extends Model
     use SoftDeletes;
 
     protected $guarded = ['id'];
-    protected $table = 'bpms.bpms_variables';
+    //protected $table = 'bpms.bpms_variables';
 
     protected $casts = [
         'options' => 'array',

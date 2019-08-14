@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class BpmsState extends Model
 {
     protected $guarded = ['id'];
-    protected $table = 'bpms.bpms_states';
+    //protected $table = 'bpms.bpms_states';
 
      
     protected $visible = ['id','wid','text','ws_pro_id', 'workflow','type','is_position'];

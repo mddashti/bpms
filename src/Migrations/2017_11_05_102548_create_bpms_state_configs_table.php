@@ -13,7 +13,7 @@ class CreateBpmsStateConfigsTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms.bpms_state_configs', function (Blueprint $table) {
+        Schema::create('bpms_state_configs', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('state_id');
             $table->integer('form_id')->nullable();            
@@ -33,6 +33,6 @@ class CreateBpmsStateConfigsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bpms.bpms_state_configs');
+        Schema::dropIfExists('bpms_state_configs');
     }
 }

@@ -13,7 +13,7 @@ class CreateBpmsTriggersTable extends Migration
      */
     public function up()
     {
-        Schema::create('bpms.bpms_triggers', function (Blueprint $table) {
+        Schema::create('bpms_triggers', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('ws_pro_id');
             $table->string('title')->unique();
@@ -33,6 +33,6 @@ class CreateBpmsTriggersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bpms.bpms_triggers');
+        Schema::dropIfExists('bpms_triggers');
     }
 }
