@@ -22,7 +22,7 @@ class BpmsServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind('Niyam\Bpms\Data\DataRepositoryInterface', 'Niyam\Bpms\Service\ProcessService');
-        if (env('BPMS_ENABLE_MIGRATION', false))
+        if (env('BPMS_ENABLE_MIGRATION', true))
             $this->registerMigrations();
     }
 

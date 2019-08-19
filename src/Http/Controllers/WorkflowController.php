@@ -38,9 +38,9 @@ class WorkflowController
 
     public function getWorkflows(Request $request)
     {
-        return Cache::remember('active-workflows', 5, function () {
+        // return Cache::remember('active-workflows', 5, function () {
             return $this->wservice->getWorkflows();
-        });
+        // });
     }
 
     public function test(FusionPBX $pbx, Request $request)

@@ -776,12 +776,27 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
                 }
             }
             $state = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_STATE, ['ws_pro_id' => $this->wid, 'wid' => $t->to_state]);
+            if ($state->type == "bpmn:SubProcess")
+                $state = $this->findSubprocessFirstState($t->to_state);
             $result[] = ['is_position' => $this->isPositionBased($state->meta_type), 'next_type' => $state->meta_type, 'next_work' => $state->text, 'next_user' => $this->getNextUserByType($state)];
         }
         if (!isset($result))
             $this->setEvent(ProcessLogicInterface::WORKFLOW_EXCEPTION, 'NO_POSSIBLE_STATE');
 
         return $result;
+    }
+
+    public function findSubprocessFirstState($stateWID)
+    {
+        $meta = $this->getSubProcessMeta($stateWID);
+        if ($meta->isSuccess) {
+            $workflowId = $meta->entity['workflow'];
+            $startState = $meta->entity['start'];
+
+            if ($workflowId) {
+                return $state = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_STATE, ['ws_pro_id' => $workflowId, 'wid' =>  $startState]);
+            }
+        }
     }
 
     public function createCase($inputArray)
@@ -1320,15 +1335,15 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
         if ($type == ProcessLogicInterface::WORKFLOW_BACKED) {
             $lastActivity = $this->dataRepo->getEntity(DataRepositoryInterface::BPMS_ACTIVITY, $last);
-            $transition = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_TRANSITION, ['id'=>$lastActivity->transition_id]);
+            $transition = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_TRANSITION, ['id' => $lastActivity->transition_id]);
             $fromStateId = $transition->from_state;
             //$preLastActivity = $this->dataRepo->getEntity(DataRepositoryInterface::BPMS_ACTIVITY, $lastActivity->pre);
-            $preLastActivity = $this->dataRepo->findEntityByOrder(DataRepositoryInterface::BPMS_ACTIVITY, ["case_id" => $this->id, "options->>'element_name'"=>$fromStateId],'id','desc');
-            $data = ['case_id' => $this->id, 'type' => $type, 'transition_id' => $preLastActivity->transition_id, 'comment' => $this->comment ? : 'WORKFLOW_BACKED', 'pre' => $last, 'part_id' => $this->partId ? : 0, 'user_id' => $preLastActivity->user_id, 'options' => $preLastActivity->options];
+            $preLastActivity = $this->dataRepo->findEntityByOrder(DataRepositoryInterface::BPMS_ACTIVITY, ["case_id" => $this->id, "options->>'element_name'" => $fromStateId], 'id', 'desc');
+            $data = ['case_id' => $this->id, 'type' => $type, 'transition_id' => $preLastActivity->transition_id, 'comment' => $this->comment ?: 'WORKFLOW_BACKED', 'pre' => $last, 'part_id' => $this->partId ?: 0, 'user_id' => $preLastActivity->user_id, 'options' => $preLastActivity->options];
             $activityId = $this->dataRepo->createEntity(DataRepositoryInterface::BPMS_ACTIVITY, $data);
             $state = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_STATE, ['ws_pro_id' => $this->wid, 'wid' => $fromStateId]);
             $formId = $state->options['forms'][0];
-            $data = ['activity_id' => $activityId, 'state' => $fromStateId, 'user_current' => $preLastActivity->user_id, 'user_from' => $user_from, 'status' => $preLastActivity->user_id == -1?'unassigned':'working','form_id'=>$formId];
+            $data = ['activity_id' => $activityId, 'state' => $fromStateId, 'user_current' => $preLastActivity->user_id, 'user_from' => $user_from, 'status' => $preLastActivity->user_id == -1 ? 'unassigned' : 'working', 'form_id' => $formId];
             $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_CASE, ['id' => $this->id], $data);
             return;
         }
@@ -1423,7 +1438,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             }
         $stateWID = $data['state'];
         $resdultNameCurrentState = BpmsState::where('wid', $stateWID)->first()->text;
-        
+
         if (isset($data['form'])) {
             $formId = $data['form']['id'];
             $info = $this->formService->getFormElements(['id' => $formId]);
@@ -1431,7 +1446,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
         $data['elements'] = isset($info) ? $info['elements'] : '';
         $data['state_text'] = !empty($resdultNameCurrentState) ? $resdultNameCurrentState : '';
-        
+
         return $data;
     }
 
