@@ -197,16 +197,24 @@ class BaseService implements DataRepositoryInterface
 
     public function givePositionsOfUser($userId)
     {
-        return [];
+        return [$userId + 1, $userId];
     }
 
-    public function giveUsersOfPosition($position)
+    public function giveUsersOfPosition($position, $successor = false)
     {
-        return [1, $position, $position + 1];
+        if ($position < 2)
+            $position = 2;
+
+        if ($successor)
+            return [$position - 1, $position];
+        return $position - 1;
     }
 
-    public function isPositionBased($meta_type)
+    public function giveParentPosition($position, $currentUser = null)
+    { }
+
+    public function isPositionBased($state)
     {
-        return $meta_type == 21 || $meta_type == 22;
+        return $state->meta_user == 1;
     }
 }

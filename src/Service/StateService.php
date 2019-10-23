@@ -182,6 +182,14 @@ class StateService extends BaseService
             $dataTemp['meta_value'] = $data['value'];
         }
 
+        if (isset($data['meta_user'])) { // is position or user?
+            $dataTemp['meta_user'] = $data['meta_user'];
+        }
+
+        if (isset($data['meta_successor'])) {
+            $dataTemp['meta_successor'] = $data['meta_successor'];
+        }
+
         $dataTemp['options'] = $opts;
 
         if ($this->test) {
@@ -204,49 +212,11 @@ class StateService extends BaseService
             return;
 
         $opts = $meta->options;
-
-        $res = array();
-
-        if (isset($opts['x'])) {
-            $res['x'] = $opts['x'];
-        }
-
-        if (isset($opts['y'])) {
-            $res['y'] = $opts['y'];
-        }
-
-        if (isset($opts['back'])) {
-            $res['back'] = $opts['back'];
-        }
-
-        if (isset($opts['name'])) {
-            $res['name'] = $opts['name'];
-        }
-        if (isset($opts['users_meta'])) {
-            $res['users_meta'] = $opts['users_meta'];
-        }
-
-        if (isset($opts['forms'])) {
-            $res['forms'] = $opts['forms'];
-        }
-
-        if (isset($opts['script'])) {
-            $res['script'] = $opts['script'];
-        }
-
-        if (isset($meta->meta_type)) {
-            $res['type'] = $meta->meta_type;
-        }
-
-        if (isset($opts['users'])) {
-            $res['users'] = $opts['users'];
-        }
-
-        if (isset($meta->meta_value)) {
-            $res['value'] = $meta->meta_value;
-        }
-
-        return $res;
+        $opts['type'] = $meta->meta_type;
+        $opts['value'] = $meta->meta_value;
+        $opts['meta_user'] = $meta->meta_user;
+        $opts['meta_successor'] = $meta->meta_successor;
+        return $opts;
     }
 
     public function deleteStateMeta($stateWID, $option, $data)

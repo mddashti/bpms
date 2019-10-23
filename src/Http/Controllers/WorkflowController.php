@@ -118,6 +118,9 @@ class WorkflowController
         $metaName = $request->name;
         $metaBack = $request->back;
         $script = $request->script;
+        $metaUser = $request->meta_user;
+        $metaSuccessor = $request->has_successor;
+
 
 
         if ($metaType != 7 && $metaType != 9 && $metaType != 12) {
@@ -134,7 +137,7 @@ class WorkflowController
         $state = $request->state;
 
         //$data = ['type' => $metaType, 'value' => $metaValue, 'users' => $metaValuePure, 'forms' => $forms, 'script' => $script];
-        $data = ['type' => $metaType, 'value' => $metaValue, 'users' => $metaValuePure, 'form' => $testForm, 'script' => $script];
+        $data = ['type' => $metaType, 'value' => $metaValue, 'users' => $metaValuePure, 'form' => $testForm, 'script' => $script, 'meta_user' => $metaUser, 'meta_successor' => $metaSuccessor];
 
         //$data = ['back' => $metaBack];
         //$data = ['form' => 1];

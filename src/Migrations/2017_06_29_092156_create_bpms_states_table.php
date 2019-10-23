@@ -25,6 +25,8 @@ class CreateBpmsStatesTable extends Migration
             $table->string('next_type')->nullable();
             $table->integer('meta_type')->nullable();
             $table->integer('meta_value')->nullable();
+            $table->tinyInteger('meta_user')->default(0);
+            $table->boolean('has_successor')->default(false);
             $table->json('options')->nullable();
 
             $table->timestamps();

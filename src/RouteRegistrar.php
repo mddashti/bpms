@@ -70,7 +70,7 @@ class RouteRegistrar
 
             $router->get('{workflow}/status', 'WorkflowController@getStatus');
 
-            $router->get('{workflow}/user/{state}', 'WorkflowController@getWorkflowUser');
+            $router->get('{workflow}/states/{state}/user', 'WorkflowController@getWorkflowUser');
 
             $router->get('{workflow}/condition/{gate}', 'WorkflowController@getWorkflowCondition');
 

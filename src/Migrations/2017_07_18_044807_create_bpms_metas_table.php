@@ -20,6 +20,7 @@ class CreateBpmsMetasTable extends Migration
             $table->string('element_name')->nullable();
             $table->integer('meta_type')->nullable();
             $table->string('meta_value')->nullable();
+            $table->tinyInteger('meta_user')->default(0);
             $table->integer('case_id');
             $table->json('options')->nullable();
             $table->timestamps();

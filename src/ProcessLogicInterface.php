@@ -30,8 +30,8 @@ interface ProcessLogicInterface
         META_TYPE_VARIABLE = 7, //7,null,users=[z] where z --> 1
         META_TYPE_MANUAL = 8,
         META_TYPE_COMMON_VARIABLE = 9, //9,null,users=[z] where z --> [1,2] 
-        META_TYPE_ARRAY_VARIABLE = 10,
-        META_TYPE_COMMON_CUSTOM = 11,
+        // META_TYPE_ARRAY_VARIABLE = 10,
+        // META_TYPE_COMMON_CUSTOM = 11,
         META_TYPE_SCRIPT_URL = 12,
         META_TYPE_SCRIPT_CODE = 13,
         META_TYPE_MESSAGE = 14,
@@ -41,9 +41,11 @@ interface ProcessLogicInterface
         META_TYPE_POSITION_XY = 18,//x:{type:1, value:role_id} or x:{type:2, value:variable}, y:{type:1, value:role_id} or y:{type:2, value:variable}
         META_TYPE_POSITION_XL = 19,//x:{type:1, value:role_id} or x:{type:2, value:variable} y:{type:1, value:level}
         META_TYPE_POSITION_XTAG = 20,// x:{type:1, value:role_id} or x:{type:2, value:variable}   //y:{type:1,value:tag_id}
-        META_TYPE_CYCLIC_POSITION = 21,//users=[1,2] --->role_id
-        META_TYPE_COMMON_POSITION = 22,//users=[1,2] --->role_id
-        META_TYPE_MANUAL_POSITION = 23;//users=[1,2] --->role_id
+        // META_TYPE_CYCLIC_POSITION = 21,//users=[1,2] --->role_id
+        // META_TYPE_COMMON_POSITION = 22,//users=[1,2] --->role_id
+        // META_TYPE_MANUAL_POSITION = 23,//users=[1,2] --->role_id
+        META_TYPE_PARENT_POSITION = 24;
+
     const
         USER_COMMAN = -1,
         USER_NO_MATCH = -2,

@@ -72,6 +72,8 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
     private $next_form = 0;
 
+    private $next_position = 0;
+
     private $vars = null;
 
     private $stateReq = null;
@@ -85,8 +87,6 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
     private $user_manual = null;
 
     private $error = null;
-
-    // private $state_first_access = false;
 
     private $preview_next = null;
 
@@ -167,10 +167,11 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
     public function hasParentCase()
     {
-        $system_options = $this->case->system_options;
-        if ($system_options && $system_options['parent_case'])
-            return $system_options['parent_case'];
-        return 0;
+        // $system_options = $this->case->system_options;
+        // if ($system_options && $system_options['parent_case'])
+        //     return $system_options['parent_case'];
+        // return 0;
+        return $this->case->parent_case;
     }
 
     private function getParentCase()
@@ -328,25 +329,10 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             $predicate['ws_pro_id'] = $ws_pro_id;
         }
         $states = BpmsState::with('workflow')->where($predicate)->get();
-        $res = array();
+        $res = [];
         foreach ($states as $state) {
-            if ($state->meta_type == 1 && $state->meta_value == $userId) { //explicit user
+            if ($this->isUserinState($state, $userId))
                 $res[] = $state;
-                continue;
-            } else if ($this->isPositionBased($state->meta_type)) {
-                $positions = isset($state->options['users']) ? $state->options['users'] : null;
-                $position = $this->givePositionOfUser($userId);
-                if (in_array($position, $positions)) {
-                    $res[] = $state;
-                }
-            }
-
-            $users = isset($state->options['users']) ? $state->options['users'] : null; //implicit
-            if ($users) {
-                if (in_array($userId, $users)) {
-                    $res[] = $state;
-                }
-            }
         }
         return $res;
     }
@@ -359,58 +345,26 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         }
 
         $states = $this->dataRepo->findEntities(DataRepositoryInterface::BPMS_STATE, $predicate);
+
         foreach ($states as $state) {
-            if ($state->meta_type == static::META_TYPE_USER && $state->meta_value == $userId) {
+            if ($this->isUserinState($state, $userId))
                 return true;
-            } else if ($state->meta_type == static::META_TYPE_COMMON_POSITION || $state->meta_type == static::META_TYPE_CYCLIC_POSITION) {
-                $positions = isset($state->options['users']) ? $state->options['users'] : null;
-                $position = $this->givePositionOfUser($userId);
-                if (in_array($position, $positions)) {
-                    return true;
-                }
-            }
-            $users = isset($state->options['users']) ? $state->options['users'] : null;
-            if ($users) {
-                if (in_array($userId, $users)) {
-                    return true;
-                }
-            }
         }
         return false;
     }
 
-    // public function checkSubProcess()
-    // {
-    //     $s = $this->getCurrentState();
-    //     if ($s->isSuccess) {
-    //         $currentState = $s->entity;
-    //     } else {
-    //         return;
-    //     }
-
-    //     if ($currentState->type == 'bpmn:SubProcess') {
-    //         $meta = $this->getSubProcessMeta($currentState->wid);
-    //         if ($meta->isSuccess) {
-    //             $workflowId = $meta->entity['workflow'];
-    //             $caseId = $meta->entity['case'];
-    //             $startState = $meta->entity['start'];
-    //             $in_vars = $meta->entity['in_vars'];
-
-    //             $vars = $this->caseService->getCaseOption('vars', $in_vars);
-
-    //             if (!$caseId) {
-    //                 $caseResponse = $this->createCase(['ws_pro_id' => $workflowId, 'start' => $startState, 'vars' => $vars]);
-    //                 $this->setSubProcessMeta($currentState->wid, $caseResponse->entity);
-    //             }
-    //             //$this->loadSubProcess($caseId);
-    //         }
-    //     }
-    // }
+    public function isUserinState($state, $userId)
+    {
+        $users = isset($state->options['users']) ? $state->options['users'] : null;
+        if ($this->isPositionBased($state))
+            $userInfo = $this->givePositionsOfUser($userId);
+        else
+            $userInfo = [$userId];
+        return array_intersect($userInfo, $users) ? true : false;
+    }
 
     public function checkNext($state = null, $user = null)
     {
-        // $this->state_first_access = true;
-
         $s = $this->getCurrentState($state);
 
         if ($s->isSuccess) {
@@ -505,8 +459,10 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             $data = ['meta_value' => is_array($userId) ? ProcessLogicInterface::USER_COMMAN : $userId, 'meta_type' => $currentState->meta_type];
             $this->setNextUser($userId);
 
-            if (!is_array($userId) && $this->isPositionBased($currentState->meta_type))
-                $data['meta_value'] = $this->givePositionOfUser($userId);
+            if (!is_array($userId) && $this->isPositionBased($currentState)) {
+                $data['meta_value'] = $this->next_position;
+                $data['meta_user'] = 1;
+            }
             return $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_META, $predicate, $data, true);
         }
     }
@@ -528,14 +484,12 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         if ($this->status == 'parted' || $this->status == 'subprocess' || $m == null  || !$m->meta_type || $m->meta_type == static::META_TYPE_SUBPROCESS)
             return true;
 
-        // if ($m == null || !$m->meta_type) { //state with no meta!
-        //     return true;
-        // }
+        $positions = $this->givePositionsOfUser($metaReq);
+        $this->user_position = $positions[0];
 
-        if ($this->isPositionBased($m->meta_type)) {
-            $position = $this->givePositionOfUser($metaReq);
-            $this->user_position = $position;
-            return $position == $m->meta_value;
+        if ($this->isPositionBased($m)) {
+            $this->user_position = $m->meta_value;
+            return in_array($m->meta_value, $positions);
         }
 
         if ($typeReq) {
@@ -564,37 +518,18 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             } else if ($type == ProcessLogicInterface::META_TYPE_CYCLIC) {
                 $users = $state->options['users'];
                 $key = $state->meta_value;
-                if ($key !== null) {
-                    if (array_key_exists($key + 1, $users)) {
-                        $state->meta_value = $key + 1;
-                    } else {
-                        $state->meta_value = 0;
-                    }
-                } else {
-                    $state->meta_value = 0;
-                }
+                $state->meta_value = 0;
+                if ($key !== null && array_key_exists($key + 1, $users))
+                    $state->meta_value = $key + 1;
                 if ($save) {
                     $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $state->wid, 'ws_pro_id' => $state->ws_pro_id], ['meta_value' => $state->meta_value]);
+                }
+                if ($this->isPositionBased($state)) //is position
+                {
+                    $this->next_position = $users[$state->meta_value];
+                    return $this->giveUsersOfPosition($users[$state->meta_value], $state->meta_successor);
                 }
                 return $users[$state->meta_value];
-            } else if ($type == ProcessLogicInterface::META_TYPE_CYCLIC_POSITION) {
-                $positions = $state->options['users'];
-                $key = $state->meta_value;
-                if ($key !== null) {
-                    if (array_key_exists($key + 1, $positions)) {
-                        $state->meta_value = $key + 1;
-                    } else {
-                        $state->meta_value = 0;
-                    }
-                } else {
-                    $state->meta_value = 0;
-                }
-                if ($save) {
-                    $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $state->wid, 'ws_pro_id' => $state->ws_pro_id], ['meta_value' => $state->meta_value]);
-                }
-                return $this->selectUserOfPosition($positions[$state->meta_value], $rival);
-            } else if ($type == ProcessLogicInterface::META_TYPE_USER) {
-                return $state->meta_value;
             } else if ($type == ProcessLogicInterface::META_TYPE_MANUAL) {
                 return $this->user_manual ? $this->user_manual : $state->options['users'];
             } else if ($type == ProcessLogicInterface::META_TYPE_VARIABLE) {
@@ -606,41 +541,10 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
                 return $user;
             } else if ($type == ProcessLogicInterface::META_TYPE_COMMON) {
                 $users = $state->options['users'];
-
-                if ($rival) {
-                    if (in_array($rival, $users)) {
-                        return $rival;
-                    }
+                if ($rival && $this->isUserinState($state, $rival)) {
+                    return $rival;
                 } else {
                     return $users;
-                }
-            } else if ($type == ProcessLogicInterface::META_TYPE_COMMON_POSITION) {
-                $positions = $state->options['users'];
-                if ($rival) {
-                    $position = $this->givePositionOfUser($rival);
-                    if (in_array($position, $positions)) {
-                        return $rival;
-                    }
-                } else {
-                    return $positions;
-                }
-            } else if ($type == ProcessLogicInterface::META_TYPE_ARRAY_VARIABLE) {
-                $users = $state->options['users'];
-
-                if ($rival) {
-                    $vars = $this->caseService->getCaseOption('vars');
-
-                    if (in_array($rival, $vars)) {
-                        return $rival;
-                    } else {
-                        return 0;
-                    }
-                } else {
-                    $vars = $this->caseService->getCaseOption('vars');
-                    foreach ($users as $u) {
-                        $temp[$u] = $vars[$u];
-                    }
-                    return $temp;
                 }
             } else if ($type == ProcessLogicInterface::META_TYPE_COMMON_VARIABLE) {
                 $users = $state->options['users']; //users:["x"] // x:[10,5]
@@ -664,23 +568,9 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
                         $this->setEvent(ProcessLogicInterface::WORKFLOW_EXCEPTION, 'USER_NOT_EXIST');
                     return $user;
                 }
-            }
-            // else if ($type == ProcessLogicInterface::META_TYPE_COMMON_CUSTOM) {
-            //     abort(501);
-            //     $users = $state->options['users'];
-
-            //     if ($rival) {
-            //         if (in_array($rival, $this->getCustomUsers($users))) {
-            //             return $rival;
-            //         }
-            //     } else if ($save && !$rival) {
-            //         $res = $this->getCustomUsers($users);
-            //         return count($res) > 1 ? $res : $res[0];
-            //     } else {
-            //         return $this->getCustomUsersText($users);
-            //     }
-            // } 
-            else if ($type == ProcessLogicInterface::META_TYPE_SCRIPT_URL) {
+            } else if ($type == ProcessLogicInterface::META_TYPE_PARENT_POSITION) {
+                return $this->giveParentPosition($state->meta_value, $this->getMetaReq());
+            } else if ($type == ProcessLogicInterface::META_TYPE_SCRIPT_URL) {
                 $user = $state->options['users'][0];
                 $vars = $this->caseService->getCaseOption('vars');
                 $user = $vars[$user];
@@ -699,15 +589,6 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
 
     #region Override by user
-
-    public function selectUserOfPosition($position, $userId)
-    {
-        if ($userId === false) //in preview mode
-            return $position;
-        $users = $this->giveUsersOfPosition($position);
-        if (in_array($userId, $users))
-            return $userId;
-    }
 
     public function sendApi($url, $data)
     {
@@ -778,7 +659,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             $state = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_STATE, ['ws_pro_id' => $this->wid, 'wid' => $t->to_state]);
             if ($state->type == "bpmn:SubProcess")
                 $state = $this->findSubprocessFirstState($t->to_state);
-            $result[] = ['is_position' => $this->isPositionBased($state->meta_type), 'next_type' => $state->meta_type, 'next_work' => $state->text, 'next_user' => $this->getNextUserByType($state)];
+            $result[] = ['is_position' => $this->isPositionBased($state), 'next_type' => $state->meta_type, 'next_work' => $state->text, 'next_user' => $this->getNextUserByType($state)];
         }
         if (!isset($result))
             $this->setEvent(ProcessLogicInterface::WORKFLOW_EXCEPTION, 'NO_POSSIBLE_STATE');
@@ -993,7 +874,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         ]);
     }
 
-    public function getSubprocessMetaWorkflow($workflow, $state)
+    public function getSubprocessMetaWorkflow($workflow, $state) //is used for set meta_subprocess
     {
         if ($this->test)
             $state = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $state, 'ws_pro_id' => $workflow->id]);
@@ -1048,20 +929,6 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         return $this->dataRepo->findEntities(DataRepositoryInterface::BPMS_CASE, ['cid' => $this->id, 'user_creator' => -1])->pluck('state');
     }
 
-    // public function setPart($state = null)
-    // {
-    //     if ($this->test == true) {
-    //         $this->part = $this->dataRepo->findEntityByRandom(DataRepositoryInterface::BPMS_FAKEPART, ['ws_pro_id' => $this->wid]);
-    //     } else {
-    //         //$this -> part = $this ->case -> parts() ->inRandomOrder()->first();
-    //         $this->part = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_PART, ['case_id' => $this->id, 'state' => $state ?: $this->getStateReq()]);
-    //     }
-
-    //     $this->state = $this->part->state;
-    //     $this->partId = $this->part->id;
-    //     //$this->checkSubProcess();
-    // }
-
     public function addWorkflowPart($tid, $gid, $from)
     {
         $foundPart = $this->findWorkflowPart(['transition_id' => $tid]);
@@ -1090,19 +957,6 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         }
     }
 
-    // public function deleteCurrentPart()
-    // {
-    //     if ($this->part != null) {
-    //         $this->partId = $this->part->id;
-    //         if ($this->test) {
-    //             $this->dataRepo->deleteEntity(DataRepositoryInterface::BPMS_FAKEPART, ['id' => $this->partId]);
-    //         } else {
-    //             $this->dataRepo->deleteEntity(DataRepositoryInterface::BPMS_PART, ['id' => $this->partId]);
-    //         }
-
-    //         $this->part = null;
-    //     }
-    // }
     #endregion
 
     public function getCurrentState($state = null)
@@ -1306,7 +1160,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         $last = $case->activity_id;
         $user_from = $this->getMetaReq();
         $data = ['case_id' => $this->getBaseCase(), 'original_case_id' => $this->id, 'type' => $type, 'transition_id' => $this->transitionFired, 'comment' => $this->comment, 'pre' => $last, 'part_id' => $this->partId ?: 0, 'user_id' => $user_from];
-        $data['position_id'] = $this->givePositionOfUser($user_from);
+        $data['position_id'] = $this->user_position;
         $user_current = $this->getNextUser();
 
         if (is_array($user_current)) {
@@ -1314,7 +1168,6 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             $opts['users'] = $user_current;
         } else {
             $data['user_id'] = $user_current;
-            //$data['position_current'] = $this->givePositionOfUser($user_current);
         }
 
         if ($this->next_state) {
@@ -1465,8 +1318,8 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         if (!empty($userId)) {
             $predicate = ['element_name' => $state, 'case_id' => $this->id];
 
-            if ($this->isPositionBased($s->entity->meta_type))
-                $data = ['meta_value' => $this->givePositionOfUser($userId)];
+            if ($this->isPositionBased($s->entity))
+                $data = ['meta_value' => $this->next_position];
             else
                 $data = ['meta_value' => $userId];
             $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_META, $predicate, $data);
@@ -1622,11 +1475,6 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
     public function saveWorkflow()
     {
-        // if ($this->status == 'parted') {
-        //     $this->savePart();
-        // } else {
-        //     $data['state'] = $this->state;
-        // }
         $predicate = ['id' => $this->wid];
         $data['state'] = $this->state;
         $data['status'] = $this->status;
@@ -1640,7 +1488,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         $data['user_from'] = $this->getMetaReq();
         $data['form_id'] = $this->next_form;
         $userId = $this->getNextUser();
-        $data['position_from'] = $this->givePositionOfUser($data['user_from']);
+        $data['position_from'] = $this->user_position;
 
         if (is_array($userId)) {
             $data['user_current'] = static::USER_COMMAN;
@@ -1648,18 +1496,8 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             $data['system_options']['users'] = $userId;
         } else {
             $data['user_current'] = $userId;
-            $data['position_current'] = $this->givePositionOfUser($userId);
+            $data['position_current'] =  $this->next_position;
         }
-
-        // if ($this->status == "parted") {
-        //     $this->savePart($data);
-        //     $data['status'] = "parted";
-        // } else if ($this->status == 'subprocess') {
-        //     $data['status'] = "subprocess";
-        //     $data['state'] = $this->state;
-        // } else {
-        //     $data['state'] = $this->state;
-        // }
 
         if ($this->status == 'end')
             $data['finished_at'] = date("Y-m-d H:i:s");
@@ -1672,18 +1510,6 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_CASE, $predicate, $data);
         $this->case = $this->case->fresh(); //Updated case is needed in After next function
     }
-
-    // public function savePart($data = null)
-    // {
-    //     if ($this->part != null) {
-    //         $data['state'] = $this->state;
-    //         if ($this->test) {
-    //             $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_FAKEPART, ['ws_pro_id' => $this->wid, 'id' => $this->part->id], $data);
-    //         } else {
-    //             $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_PART, ['case_id' => $this->id, 'id' => $this->part->id], $data);
-    //         }
-    //     }
-    // }
 
     public function nextLogic()
     {
@@ -1980,6 +1806,17 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         }
     }
 
+    public function saveDraft($inputArray = null)
+    {
+        $vars = isset($inputArray['vars']) ? $inputArray['vars'] : null;
+        $form = isset($inputArray['form']) ? $inputArray['form'] : null;
+
+        if ($vars)
+            $this->caseService->setCaseOption('vars', $vars);
+
+        if ($form)
+            $this->setMetaOptions($this->state, 'forms', $form);
+    }
     public function goBack($inputArray)
     {
         $metaReq = isset($inputArray['meta']) ? $inputArray['meta'] : null;

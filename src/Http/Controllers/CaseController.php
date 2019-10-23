@@ -35,7 +35,7 @@ class CaseController
 
     public function next()
     {
-        $input = ['metaReq' => 1, 'preview' => true, 'vars' => array('A' => 1, 'B' => 2, 'C' => 3), 'form' => 1];
+        $input = ['metaReq' => 1, 'preview' => false, 'vars' => array('A' => 1, 'B' => 2, 'C' => 3), 'form' => 1];
         return $this->logic->goNext($input);
     }
 
