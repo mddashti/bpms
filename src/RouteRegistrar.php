@@ -22,6 +22,8 @@ class RouteRegistrar
     {
         $this->router->get('cases', 'CaseController@allCases');
 
+        $this->router->get('case/timers', 'CaseController@checkForTimer');
+
         $this->router->resource('case', 'CaseController');
 
         $this->router->group(['prefix' => 'case'], function ($router) {

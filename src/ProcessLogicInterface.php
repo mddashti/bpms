@@ -1,4 +1,6 @@
-<?php namespace Niyam\Bpms;
+<?php
+
+namespace Niyam\Bpms;
 
 interface ProcessLogicInterface
 {
@@ -30,21 +32,21 @@ interface ProcessLogicInterface
         META_TYPE_VARIABLE = 7, //7,null,users=[z] where z --> 1
         META_TYPE_MANUAL = 8,
         META_TYPE_COMMON_VARIABLE = 9, //9,null,users=[z] where z --> [1,2] 
-        // META_TYPE_ARRAY_VARIABLE = 10,
-        // META_TYPE_COMMON_CUSTOM = 11,
         META_TYPE_SCRIPT_URL = 12,
         META_TYPE_SCRIPT_CODE = 13,
-        META_TYPE_MESSAGE = 14,
-        META_TYPE_MESSAGE_VARIABLE = 15,
-        META_TYPE_TIMER = 16,
-        META_TYPE_TIMER_VARIABLE = 17,
-        META_TYPE_POSITION_XY = 18,//x:{type:1, value:role_id} or x:{type:2, value:variable}, y:{type:1, value:role_id} or y:{type:2, value:variable}
-        META_TYPE_POSITION_XL = 19,//x:{type:1, value:role_id} or x:{type:2, value:variable} y:{type:1, value:level}
-        META_TYPE_POSITION_XTAG = 20,// x:{type:1, value:role_id} or x:{type:2, value:variable}   //y:{type:1,value:tag_id}
-        // META_TYPE_CYCLIC_POSITION = 21,//users=[1,2] --->role_id
-        // META_TYPE_COMMON_POSITION = 22,//users=[1,2] --->role_id
-        // META_TYPE_MANUAL_POSITION = 23,//users=[1,2] --->role_id
-        META_TYPE_PARENT_POSITION = 24;
+
+        META_TYPE_MESSAGE = 14, //"{"message":{"type":1,"center":1,"sender":1,"users":[1,2],"subject":"test","message":"test"}}"
+        META_TYPE_MESSAGE_VARIABLE = 15, //"{"message":{"type":1,"center":1,"sender":1,"users":[A],"subject":"Z","message":"Y"}}"
+        META_TYPE_TIMER = 16, //"{"timer":{"type":1,"hour":1,"month":3,"year":6,"day":5,"resume_at":"2019-11-18 13:15:00"}}"
+        META_TYPE_TIMER_VARIABLE = 17, //"{"timer":{"timer_type":1,"hour":"A","month":"B","year":"C","day":"D","resume_at":"Z"}}"
+
+        META_TYPE_POSITION_XY = 18, //x:{type:1, value:role_id} or x:{type:2, value:variable}, y:{type:1, value:role_id} or y:{type:2, value:variable}
+        META_TYPE_POSITION_XL = 19, //x:{type:1, value:role_id} or x:{type:2, value:variable} y:{type:1, value:level}
+        META_TYPE_POSITION_XTAG = 20, // x:{type:1, value:role_id} or x:{type:2, value:variable}   //y:{type:1,value:tag_id}
+        META_TYPE_PARENT_POSITION = 24,
+        META_TYPE_SEQUENTIAL = 25, //users=[1,2]
+        META_TYPE_SEQUENTIAL_VARIABLE = 26; //
+
 
     const
         USER_COMMAN = -1,
@@ -119,17 +121,9 @@ interface ProcessLogicInterface
 
     public function createWorkflow($inputArray);
 
-    // public function getSubprocessMetaWorkflow($workflow, $state);
-
-    // public function setSubProcessMeta($stateWID, $caseId);
-
-    //public function loadSubProcess($caseId);
-
     public function findWorkflowPart($predicate);
 
     public function countWorkflowPart();
-
-    // public function deleteCurrentPart();
 
     public function getCurrentState($state = null);
 
@@ -160,10 +154,6 @@ interface ProcessLogicInterface
     //name (used when user of library is system such as API access) 
     //predicate ['form'=> 2]
 
-    // public function getStateMeta($stateWID = null, $predicate = null, $columns = '*');
-
-    // public function updateStateOptions($stateWID, $caseId);
-
     public function getMetaOptions($stateWID, $option, $data);
 
     public function addWorkflowPart($tid, $gid, $from);
@@ -176,15 +166,11 @@ interface ProcessLogicInterface
 
     public function getBaseState();
 
-    // public function setPart($partId = null);
-
     public function saveChanges($type, $changed = true);
 
     public function saveWorkflow();
 
     public function saveCase();
-
-    // public function savePart();
 
     public function goNext($inputArray);
 

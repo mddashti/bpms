@@ -98,6 +98,10 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
     protected $baseCase = 0;
 
+    protected $stateHasAttachment = false;
+
+    protected $attachment_id = 0;
+
 
     #endregion
 
@@ -167,10 +171,6 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
     public function hasParentCase()
     {
-        // $system_options = $this->case->system_options;
-        // if ($system_options && $system_options['parent_case'])
-        //     return $system_options['parent_case'];
-        // return 0;
         return $this->case->parent_case;
     }
 
@@ -374,6 +374,12 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             return;
         }
 
+        if ($this->stateHasAttachment) {
+            $v1 = $this->attachment_id;
+            $v2 = $this->getCaseId();
+            BpmsTimer::where(['state_id' => $this->attachment_id, 'case_id' => $this->getCaseId()])->delete();
+        }
+
         if ($currentState->type == 'bpmn:ScriptTask') {
             if ($currentState->meta_type == ProcessLogicInterface::META_TYPE_SCRIPT_URL) {
                 $url = $currentState->options['script'];
@@ -396,31 +402,47 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         else if ($currentState->type == "bpmn:MessageEventDefinition") //Message event
         {
             $state = $this->currentState;
+            $messageOption = $state->options['message'] ?? null;
             if ($state->meta_type == ProcessLogicInterface::META_TYPE_MESSAGE_VARIABLE) {
-                $user = $state->options['users'][0];
                 $vars = $this->caseService->getCaseOption('vars');
-                $user = $vars[$user] ?: ProcessLogicInterface::USER_NOT_EXIST;
-            } else
-                $user = $state->options['users'][0];
-            $message = $state->options['message'];
-            $this->sendMessage($message, $user);
+                $user = $messageOption['users'][0]; //user is variable like users=>["A"]
+                $users = $vars[$user] ?: ProcessLogicInterface::USER_NOT_EXIST;
+                $message = $vars[$messageOption['message']] ?? NULL;
+                $subject =  $vars[$messageOption['subject']] ?? NULL;
+            } else {
+                $users = $messageOption['users'];
+                $message = $messageOption['message'];
+                $subject =  $messageOption['subject'] ?? NULL;
+            }
+            $center =  $messageOption['center'] ?? NULL;
+            $sender =  $messageOption['sender'] ?? NULL;
+            $messageType = $messageOption['type'] ?? NULL;
+            $this->sendMessage($messageType, $center, $sender, $subject,  $message, $users);
             return;
-        } else if ($currentState->type == "bpmn:TimerEventDefinition") //Timer event
+        } else if ($currentState->type == "bpmn:TimerEventDefinition" || $currentState->has_attachment) //Timer event
         {
-            $state = $this->currentState;
+            if ($currentState->has_attachment) {
+                $attachmentWID = $currentState->attacher_wid;
+                $state = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $attachmentWID, 'ws_pro_id' => $this->getWID()]);
+            } else
+                $state = $this->currentState;
+            $timerOption = $state->options['timer'];
             if ($state->meta_type == ProcessLogicInterface::META_TYPE_TIMER_VARIABLE) {
                 $till = $state->options['var'];
                 $vars = $this->caseService->getCaseOption('vars');
                 $suspend_till = $vars[$till] ?: null;
             } else {
-                $type = $state->options['type'];
+                $type = $timerOption['type'];
                 if ($type == 1) //Waitfor
                 {
-                    $day = $state->options['type'];
-                    $hour = $state->options['hour'];
-                    $minute = $state->options['minute'];
-                    $suspend_till = Carbon::now()->addDays($day)->addHours($hour)->addMinutes($minute);
-                    BpmsTimer::create(['case_id' => $this->getCaseId(), 'part_id' => 0, 'unsuspend_at' => $suspend_till]);
+                    $day = $timerOption['type'];
+                    $hour = $timerOption['hour'];
+                    $month = $timerOption['month'];
+                    $year = $timerOption['month'];
+                    $suspend_till = Carbon::now()->addDays($day)->addHours($hour)->addMonths($month)->addYears($year);
+                    BpmsTimer::create(['case_id' => $this->getCaseId(), 'state_id' => $state->id, 'state_wid' => $state->wid, 'base_state_wid' => $currentState->wid, 'unsuspend_at' => $suspend_till]);
+                    if (!$currentState->has_attachment)
+                        $this->status = 'paused';
                     return;
                 }
             }
@@ -595,7 +617,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         return 200;
     }
 
-    public function sendMessage($message, $user)
+    public function sendMessage($messageType, $center, $sender, $subject,  $message, $users)
     {
         //abort(501);
     }
@@ -876,10 +898,10 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
     public function getSubprocessMetaWorkflow($workflow, $state) //is used for set meta_subprocess
     {
-        if ($this->test)
-            $state = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $state, 'ws_pro_id' => $workflow->id]);
-        else
-            $state = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_META, ['element_type' => 3, 'element_name' => $state, 'case_id' => $case->id]);
+        // if ($this->test)
+        $state = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $state, 'ws_pro_id' => $workflow->id]);
+        // else
+        //     $state = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_META, ['element_type' => 3, 'element_name' => $state, 'case_id' => $case->id]);
 
         $case = 0;
         $workflow = 0;
@@ -990,6 +1012,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
     {
         $getState = $this->getCurrentState($state);
         $this->currentState = $getState->isSuccess ? $getState->entity : null;
+        $this->state = $state;
     }
 
     public function isEndedWorkflow()
@@ -997,19 +1020,6 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         $s = $this->getCurrentState($this->state)->entity;
         $check = ($s->type == 'bpmn:EndEvent');
         $this->next_state = $s;
-
-        // if ($check && $this->status == 'parted') {
-        //     $this->deleteCurrentPart();
-
-        //     $remainingParts = $this->countWorkflowPart();
-
-        //     if ($remainingParts == 0) {
-        //         $this->status = 'end';
-        //         return ProcessLogicInterface::WORKFLOW_ENDED;
-        //     }
-
-        //     return ProcessLogicInterface::WORKFLOW_PART_ENDED;
-        // }
 
         if ($check && $this->status != 'parted') {
             $this->status = 'end';
@@ -1191,7 +1201,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             $transition = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_TRANSITION, ['id' => $lastActivity->transition_id]);
             $fromStateId = $transition->from_state;
             //$preLastActivity = $this->dataRepo->getEntity(DataRepositoryInterface::BPMS_ACTIVITY, $lastActivity->pre);
-            $preLastActivity = $this->dataRepo->findEntityByOrder(DataRepositoryInterface::BPMS_ACTIVITY, ["case_id" => $this->id, "options->>'element_name'" => $fromStateId], 'id', 'desc');
+            $preLastActivity = $this->dataRepo->findEntityByOrder(DataRepositoryInterface::BPMS_ACTIVITY, ["case_id" => $this->id, "options->element_name" => $fromStateId], 'id', 'desc');
             $data = ['case_id' => $this->id, 'type' => $type, 'transition_id' => $preLastActivity->transition_id, 'comment' => $this->comment ?: 'WORKFLOW_BACKED', 'pre' => $last, 'part_id' => $this->partId ?: 0, 'user_id' => $preLastActivity->user_id, 'options' => $preLastActivity->options];
             $activityId = $this->dataRepo->createEntity(DataRepositoryInterface::BPMS_ACTIVITY, $data);
             $state = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_STATE, ['ws_pro_id' => $this->wid, 'wid' => $fromStateId]);
@@ -1351,7 +1361,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
         foreach ($transitions as $transition) {
             $predicate = ['from_state' => $transition['from'], 'to_state' => $transition['to'], 'ws_pro_id' => $process];
-            $data = ['gate_wid' => null, 'from_state' => $transition['from'], 'to_state' => $transition['to'], 'ws_pro_id' => $process];
+            $data = ['gate_wid' => null, 'from_state' => $transition['from'], 'to_state' => $transition['to'], 'ws_pro_id' => $process, 'type' => $transition['isBoundary']];
 
             $tid = $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_TRANSITION, $predicate, $data, true);
             $to_keep[] = $tid;
@@ -1364,6 +1374,11 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
         foreach ($states as $state) {
             $data = ['loop' => isset($state['loop']) ? $state['loop'] : 'NaN', 'wid' => $state['id'], 'type' => $state['type'], 'position_state' => $state['position'], 'text' => $state['name'], 'next_wid' => $state['next']['id'], 'next_type' => $state['next']['type'], 'ws_pro_id' => $process];
+            if (isset($state['attachers'])) {
+                $data['has_attachment'] = isset($state['attachers']['id']);
+                $data['attacher_wid'] = $state['attachers']['id'] ?? NULL;
+                $data['attacher_type'] = $state['attachers']['type'] ?? NULL;
+            }
             $sid = $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $state['id']], $data, true);
             $to_keep[] = $sid;
         }
@@ -1379,7 +1394,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
                     $data = ['gate_wid' => $gate['id'], 'default' => false];
                     if (!empty($gate['default']) && $gate['default'] == $out)
                         $data['default'] = true;
-                    $foundTransition = $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_TRANSITION, ['from_state' => $in, 'to_state' => $out], $data);
+                    $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_TRANSITION, ['from_state' => $in, 'to_state' => $out], $data);
                 }
             }
 
@@ -1450,6 +1465,9 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             case ProcessLogicInterface::WORKFLOW_STATE_NOTFOUND:
                 return ['status' => 'error', 'type' => static::NEXT_ERROR, 'message' => 'WORKFLOW_STATE_NOTFOUND'];
 
+            case ProcessLogicInterface::WORKFLOW_PAUSED:
+                return ['status' => 'error', 'type' => static::NEXT_ERROR, 'message' => 'WORKFLOW_PAUSED'];
+
             default:
         }
 
@@ -1488,7 +1506,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         $data['user_from'] = $this->getMetaReq();
         $data['form_id'] = $this->next_form;
         $userId = $this->getNextUser();
-        $data['position_from'] = $this->user_position;
+        $data['position_from'] = $this->user_position ?: 0;
 
         if (is_array($userId)) {
             $data['user_current'] = static::USER_COMMAN;
@@ -1517,6 +1535,10 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             return $this->saveChanges(ProcessLogicInterface::WORKFLOW_IN_PART_MODE, false);
         }
 
+        if ($this->status == "paused") {
+            return $this->saveChanges(ProcessLogicInterface::WORKFLOW_PAUSED, false);
+        }
+
         if ($this->status == 'end' && $this->test) { //workflow to restart
             $this->state = $this->getFirstStateWID();
             $this->status = 'working';
@@ -1524,11 +1546,11 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             return $this->saveChanges(ProcessLogicInterface::WORKFLOW_RESTARTED);
         }
 
-        if ($this->status == 'end') { //case to restart
+        if ($this->status == 'end') {
             return $this->saveChanges(ProcessLogicInterface::WORKFLOW_ENDED_BEFORE, false);
         }
 
-        if ($this->status == 'subprocess') { //case to restart
+        if ($this->status == 'subprocess') {
             return $this->saveChanges(ProcessLogicInterface::WORKFLOW_IS_IN_SUBPROCESS, false);
         }
 
@@ -1549,6 +1571,12 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
         do {
             $next_type =  $this->currentState->next_type;
+            $this->stateHasAttachment = $this->currentState->has_attachment;
+            if ($this->stateHasAttachment) {
+                $attachmentWID = $this->currentState->attacher_wid;
+                $foundAttachment = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $attachmentWID, 'ws_pro_id' => $this->getWID()]);
+                $this->attachment_id = $foundAttachment->id;
+            }
 
             try {
                 $available = [];
@@ -1590,17 +1618,12 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
                                 $this->addWorkflowPart($toGoTransition->id, $toGoTransition->gate_wid, $toGoTransition->to_state);
                                 $this->status = 'parted';
                                 $isParellel = true;
-                                // if ($isPartedBefore)
-                                //     $this->deleteCurrentPart();
                             }
                         } //End of check for conditional gates
                         else { //Parallel gate
                             $this->addWorkflowPart($toGoTransition->id, $toGoTransition->gate_wid, $toGoTransition->to_state);
                             $isParellel = true;
                             $this->status = 'parted';
-                            // if ($isPartedBefore) {
-                            //     $this->deleteCurrentPart();
-                            // }
                         }
                     } // end of foreach
                 } //end of main if available count > 1
@@ -1665,7 +1688,8 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
                     return $this->saveChanges(ProcessLogicInterface::WORKFLOW_NO_PATH, false);
                 }
             } catch (\Exception $e) {
-                echo $e->getMessage(), "\n";
+                $this->setEvent(ProcessLogicInterface::WORKFLOW_EXCEPTION, $e->getMessage());
+                return $this->saveChanges(ProcessLogicInterface::WORKFLOW_EXCEPTION, false);
             }
             $endResult = $this->isEndedWorkflow();
 
@@ -1677,7 +1701,6 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
     public function backLogic()
     {
-        // $case = $this->getCase();
         $state = $this->getCurrentState();
 
         if (!$state->isSuccess) {
@@ -1694,8 +1717,6 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
     public function changeUser($stateWID, $userId)
     {
-        //Move case
-        //Normal
         $meta = BpmsMeta::where(['element_name' => $stateWID, 'case_id' => $this->id])->first();
 
         if ($meta->meta_value == $userId)
@@ -1736,8 +1757,34 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
     {
         $now = Carbon::now();
         $cases = BpmsTimer::where('unsuspend_at', '<=', $now)->get();
-        //goNext
-        return $cases;
+        $logic = app()->make(ProcessLogic::class);
+
+        foreach ($cases as $case) {
+            $input = ['metaReq' => 0, 'nextPreview' => false];
+            $foundCase = BpmsCase::find($case->case_id);
+            if ($case->base_state_wid == $case->state_wid && $foundCase->state == $case->state_wid) {
+                $logic->setCaseById($case->case_id);
+                $res = $logic->goNext($input);
+                if ($res['status'] == 'error') {
+                    $foundCase->status = 'error';
+                    $foundCase->save();
+                    continue;
+                } else
+                    $case->delete();
+            } else if ($foundCase->state == $case->base_state_wid) {
+                $logic->setCaseById($case->case_id);
+                $logic->setCurrentState($case->state_wid);
+                $res = $logic->goNext($input);
+                if ($res['status'] == 'error') {
+                    $foundCase->status = 'error';
+                    $foundCase->save();
+                    continue;
+                } else
+                    $case->delete();
+            }
+        }
+
+        return $cases->count();
     }
 
     public function goNext($inputArray)
@@ -1792,7 +1839,9 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
                     $this->preview_next = $this->getPossibleStates($this->state, $vars);
                     return $this->saveChanges(ProcessLogicInterface::WORKFLOW_PREVIEW, false);
                 } else {
-                    $this->beforeNext($this->currentState);
+                    $beforeRes = $this->beforeNext($this->currentState);
+                    if ($beforeRes['status'] == 'error')
+                        return $beforeRes;
                     $res = $this->nextLogic();
                     $this->afterNext($this->currentState, $this->event);
                     $res['type'] = isset($res['type']) ? $res['type'] : ProcessLogicInterface::NEXT_NEXT;

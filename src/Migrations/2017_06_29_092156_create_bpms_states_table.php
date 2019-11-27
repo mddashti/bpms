@@ -23,10 +23,13 @@ class CreateBpmsStatesTable extends Migration
             $table->string('text');
             $table->string('next_wid')->nullable();
             $table->string('next_type')->nullable();
+            $table->string('attacher_wid')->nullable();
+            $table->string('attacher_type')->nullable();
             $table->integer('meta_type')->nullable();
             $table->integer('meta_value')->nullable();
             $table->tinyInteger('meta_user')->default(0);
-            $table->boolean('has_successor')->default(false);
+            $table->boolean('meta_successor')->default(false);
+            $table->boolean('has_attachment')->default(false);
             $table->json('options')->nullable();
 
             $table->timestamps();

@@ -30,7 +30,7 @@ class StateService extends BaseService
             if ($state->meta_type == 1 && $state->meta_value == $userId) { //explicit user
                 $res[] = $state;
                 continue;
-            } else if ($this->isPositionBased($state->meta_type)) {
+            } else if ($this->isPositionBased($state)) {
                 $positions = isset($state->options['users']) ? $state->options['users'] : null;
                 $position = $this->givePositionOfUser($userId);
                 if (in_array($position, $positions)) {
@@ -62,10 +62,11 @@ class StateService extends BaseService
         return $this->model->where($predicate)->first();
     }
 
+
     public function findPositionsOfState($state)
     {
         $foundState = $this->findState(['wid' => $state]);
-        if (!$this->isPositionBased($foundState->meta_type))
+        if (!$this->isPositionBased($foundState))
             return [];
         return $foundState->options['users'];
     }
@@ -197,6 +198,99 @@ class StateService extends BaseService
         } else {
             return $this->updateEntity(static::BPMS_META, $predicate, $dataTemp);
         }
+    }
+
+    public function setStateMetas($stateWID, $data)
+    {
+        $state = $this->findEntity(static::BPMS_STATE, ['wid' => $stateWID, 'ws_pro_id' => $this->wid]);
+
+        $predicate = ['wid' => $stateWID, 'ws_pro_id' => $this->wid];
+        $opts = $state->options ?? [];
+        $opts = array_merge($opts, $data);
+        // if (isset($data['users'])) {
+        //     $opts['users'] = $data['users'];
+        // }
+
+        //Sequential task
+        // if (isset($data['x'])) {
+        //     $opts['x'] = $data['x'];
+        // }
+
+        // if (isset($data['y'])) {
+        //     $opts['y'] = $data['y'];
+        // }
+
+        //Script task 
+        // if (isset($data['script'])) {
+        //     $opts['script'] = $data['script'];
+        // }
+
+        //Intermediate message 
+        // if (isset($data['message'])) {
+        //     $opts['message'] = $data['message'];
+        // }
+
+        //Intermediate timer
+        // if (isset($data['timer'])) {
+        //     $opts['timer'] = $data['timer'];
+        // }
+        //is used for subprocess
+        // if (isset($data['start'])) {
+        //     $opts['start'] = $data['start'];
+        //     $opts['in_vars'] = isset($data['in_vars']) ? $data['in_vars'] : [];
+        //     $opts['out_vars'] = isset($data['out_vars']) ? $data['out_vars'] : [];
+        // }
+
+        // if (isset($data['users_meta'])) {
+        //     $opts['users_meta'] = $data['users_meta'];
+        // }
+
+        // if (isset($data['back'])) {
+        //     $opts['back'] = $data['back'];
+        // }
+
+        // if (isset($data['name'])) {
+        //     $opts['name'] = $data['name'];
+        // }
+
+        //To add one form to forms
+        if (isset($data['form'])) {
+            $form_id = $data['form']['form_id'];
+
+            $this->formService->updateFormOfState(['state_id' => $state->id, 'form_id' => $form_id], $data['form']);
+
+            if (isset($opts['forms']) ? !in_array($form_id, $opts['forms']) : true)
+                $opts['forms'][] = $form_id;
+            unset($opts['form']);
+        }
+        //To replace all forms --- to rearrange
+        // if (isset($data['forms'])) {
+        //     $opts['forms'] = $data['forms'];
+        // }
+
+        if (isset($data['type'])) {
+            $dataTemp['meta_type'] = $data['type'];
+        }
+
+        if (isset($data['value'])) {
+            $dataTemp['meta_value'] = $data['value'];
+        }
+
+        if (isset($data['meta_user'])) { // is position or user?
+            $dataTemp['meta_user'] = $data['meta_user'];
+        }
+
+        if (isset($data['meta_successor'])) {
+            $dataTemp['meta_successor'] = $data['meta_successor'];
+        }
+
+        $dataTemp['options'] = $opts;
+
+        // if ($this->test) {
+        return $this->updateEntity(static::BPMS_STATE, $predicate, $dataTemp, true);
+        // } else {
+        //     return $this->updateEntity(static::BPMS_META, $predicate, $dataTemp);
+        // }
     }
 
     public function getStateMeta($stateWID = null, $predicate = null, $columns = '*')

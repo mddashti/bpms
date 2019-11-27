@@ -16,7 +16,9 @@ class CreateBpmsTimersTable extends Migration
         Schema::create('bpms_timers', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('case_id');
-            $table->integer('part_id')->nullable();
+            $table->integer('state_id')->nullable();
+            $table->string('state_wid')->nullable();
+            $table->string('base_state_wid')->nullable();
             $table->timestamp('unsuspend_at')->nullable();
             $table->timestamps();
             $table->softDeletes();		
