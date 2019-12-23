@@ -60,7 +60,7 @@ class CaseService extends BaseService
 
     public function getCaseOption($option, $filter = null, $caseId = null)
     {
-        $caseId = $caseId ? $caseId : $this->cid;
+        $caseId = $caseId ?? $this->cid;
         if (!$caseId)
             return null;
         $found = $this->getEntity(static::BPMS_CASE, $caseId);

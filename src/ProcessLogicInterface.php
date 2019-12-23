@@ -44,9 +44,8 @@ interface ProcessLogicInterface
         META_TYPE_POSITION_XL = 19, //x:{type:1, value:role_id} or x:{type:2, value:variable} y:{type:1, value:level}
         META_TYPE_POSITION_XTAG = 20, // x:{type:1, value:role_id} or x:{type:2, value:variable}   //y:{type:1,value:tag_id}
         META_TYPE_PARENT_POSITION = 24,
-        META_TYPE_SEQUENTIAL = 25, //users=[1,2]
-        META_TYPE_SEQUENTIAL_VARIABLE = 26; //
-
+        META_TYPE_SEQUENTIAL = 25, //users=[1,2]// if meta_user =1 successors are important -- common in seq
+        META_TYPE_SEQUENTIAL_VARIABLE = 26;//users=["z"]//just for meta_user = 0 (user)
 
     const
         USER_COMMAN = -1,
@@ -122,8 +121,6 @@ interface ProcessLogicInterface
     public function createWorkflow($inputArray);
 
     public function findWorkflowPart($predicate);
-
-    public function countWorkflowPart();
 
     public function getCurrentState($state = null);
 
