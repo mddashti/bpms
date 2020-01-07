@@ -211,7 +211,8 @@ class BaseService implements DataRepositoryInterface
     }
 
     public function giveParentPosition($position, $currentUser = null)
-    { }
+    {
+    }
 
     public function isPositionBased($state)
     {

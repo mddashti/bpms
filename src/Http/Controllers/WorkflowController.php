@@ -11,7 +11,6 @@ use Niyam\Bpms\Model\BpmsState;
 use Niyam\Bpms\Service\WorkflowService;
 use Niyam\Bpms\Service\GateService;
 use Niyam\Bpms\Service\StateService;
-use Illuminate\Support\Facades\Cache;
 
 
 class WorkflowController
@@ -120,6 +119,8 @@ class WorkflowController
         $script = $request->script;
         $metaUser = $request->meta_user;
         $metaSuccessor = $request->has_successor;
+        $condition = $request->condition;
+
 
 
 
@@ -137,7 +138,7 @@ class WorkflowController
         $state = $request->state;
 
         //$data = ['type' => $metaType, 'value' => $metaValue, 'users' => $metaValuePure, 'forms' => $forms, 'script' => $script];
-        $data = ['type' => $metaType, 'value' => $metaValue, 'users' => $metaValuePure, 'form' => $testForm, 'script' => $script, 'meta_user' => $metaUser, 'meta_successor' => $metaSuccessor];
+        $data = ['type' => $metaType, 'value' => $metaValue, 'users' => $metaValuePure, 'form' => $testForm, 'script' => $script, 'meta_user' => $metaUser, 'meta_successor' => $metaSuccessor, 'condition' => $condition];
 
         //$data = ['back' => $metaBack];
         //$data = ['form' => 1];

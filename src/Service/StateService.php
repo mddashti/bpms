@@ -119,6 +119,10 @@ class StateService extends BaseService
             $opts['users'] = $data['users'];
         }
 
+        if (isset($data['condition'])) {
+            $opts['condition'] = $data['condition'];
+        }
+
         //Sequential task
         if (isset($data['x'])) {
             $opts['x'] = $data['x'];

@@ -22,7 +22,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
     const
         CONFIG_FILTER_DUPLICATE_CASE = true,
         CONFIG_FILTER_CREATE_UNIQUE_PROCESS = true,
-        CONFIG_NEXT_PREVIEW = false,
+        CONFIG_NEXT_PREVIEW = true,
         CONFIG_WORKFLOW_USE_FORM = false,
         CONFIG_BOOT_ELOQUENT = false,
         CONFIG_CHECK_USER = false,
@@ -47,10 +47,6 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
     private $state;
 
     private $currentState;
-
-    // private $subProcess = false;
-
-    // private $backupStatus;
 
     private $backupState;
 
@@ -190,6 +186,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         return $this->case->id;
     }
 
+
     private function getBaseCase()
     {
         if ($this->test)
@@ -273,6 +270,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
     public function setVars($vars)
     {
+
         $this->vars = $vars;
     }
 
@@ -438,18 +436,11 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
                 $suspend_till = $vars[$till] ?: null;
             } else {
                 $type = $timerOption['type'];
-                if ($type == 1) //Waitfor
-                {
-                    $day = $timerOption['type'];
-                    $hour = $timerOption['hour'];
-                    $month = $timerOption['month'];
-                    $year = $timerOption['month'];
-                    $suspend_till = Carbon::now()->addDays($day)->addHours($hour)->addMonths($month)->addYears($year);
-                    BpmsTimer::create(['case_id' => $this->getCaseId(), 'state_id' => $state->id, 'state_wid' => $state->wid, 'base_state_wid' => $currentState->wid, 'unsuspend_at' => $suspend_till]);
-                    if (!$currentState->has_attachment)
-                        $this->status = 'paused';
-                    return;
-                }
+                $suspend_till = $timerOption['resume_at'] ?? Carbon::now();
+                BpmsTimer::create(['case_id' => $this->getCaseId(), 'state_id' => $state->id, 'state_wid' => $state->wid, 'base_state_wid' => $currentState->wid, 'unsuspend_at' => $suspend_till]);
+                if (!$currentState->has_attachment)
+                    $this->status = 'paused';
+                return;
             }
             return;
         } else if ($currentState->type == 'bpmn:SubProcess') {
@@ -610,7 +601,8 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
                 return $user;
             } else if ($type == ProcessLogicInterface::META_TYPE_SEQUENTIAL) {
                 return $this->findNextSequentialUser($state);
-            }
+            } else if ($type == ProcessLogicInterface::META_TYPE_TIMER || $type == ProcessLogicInterface::META_TYPE_MESSAGE)
+                return 0;
         } catch (\Exception $e) {
             $this->setEvent(ProcessLogicInterface::WORKFLOW_EXCEPTION, 'USER_EXCEPTION');
             return ProcessLogicInterface::USER_EXCEPTION; //Not expected
@@ -623,6 +615,13 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
     public function findNextSequentialUser($state)
     {
         $users = $state->options['users'];
+        $condition = $state->options['condition'] ?? true;
+
+        $isNextPossible =  $this->checkCondition($condition, $this->vars);
+
+        if (!$isNextPossible)
+            return 0;
+
         if ($this->getLastMeta()->element_name != $state->wid)
             return $users[0];
 
@@ -652,7 +651,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
     public function beforeNext($state)
     {
-        //abort(501);
+        return ['status' => 'success'];
     }
 
     public function afterNext($state, $event)
@@ -722,16 +721,16 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
     public function createCase($inputArray)
     {
-        $workflowId = isset($inputArray['ws_pro_id']) ? $inputArray['ws_pro_id'] : null;
-        $startState = isset($inputArray['start']) ? $inputArray['start'] : null;
-        $userCreator = isset($inputArray['user']) ? $inputArray['user'] : 0;
-        $title = isset($inputArray['title']) ? $inputArray['title'] : $workflowId;
-        $vars = isset($inputArray['vars']) ? $inputArray['vars'] : null;
-        $make_copy = isset($inputArray['copy']) ? $inputArray['copy'] : false;
-        $system_options = isset($inputArray['system_options']) ? $inputArray['system_options'] : [];
-        $transitionId = isset($inputArray['transition_id']) ? $inputArray['transition_id'] : 0;
-        $parentCase = isset($inputArray['parent_case']) ? $inputArray['parent_case'] : 0;
-        $userFrom = isset($inputArray['user_from']) ? $inputArray['user_from'] : $this->metaReq ?: 0;
+        $workflowId = $inputArray['ws_pro_id'] ??  null;
+        $startState = $inputArray['start'] ?? null;
+        $userCreator = $inputArray['user'] ?? 0;
+        $title = $inputArray['title'] ?? $workflowId;
+        $vars = $inputArray['vars'] ?? null;
+        $make_copy = $inputArray['copy'] ?? false;
+        $system_options = $inputArray['system_options'] ?? [];
+        $transitionId = $inputArray['transition_id'] ?? 0;
+        $parentCase = $inputArray['parent_case'] ?? 0;
+        $userFrom = $inputArray['user_from'] ?? ($this->metaReq ?: 0);
 
         if (!$workflowId) {
             return new ProcessResponse(false, null, 'WORKFLOW_NO_WORKFLOW', 1);
@@ -836,7 +835,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
     private function findCaseUserCreator($userCreator)
     {
-        return $userCreator > 0 ? $userCreator : $this->metaReq ?: 0;
+        return $userCreator > 0 ? $userCreator : ($this->metaReq ?: 0);
     }
 
     public function findWorkflowStarts($ws_pro_id = null) //???
@@ -890,8 +889,8 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             'wid' => $wid,
             'user_id' => $userId,
             'ws_id' => $ws_id,
-            'type' => isset($typeId) ? $typeId : null,
-            'wsvg' => $wsvg ? $wsvg : null,
+            'type' => $typeId ?? null,
+            'wsvg' => $wsvg ?? null,
             'options' => $opts,
             'description' => $desc,
             'wxml' => $wxml ? $wxml : '<?xml version="1.0" encoding="UTF-8"?>
@@ -932,7 +931,8 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
                 $start = $opts['start'];
                 $workflow = $this->dataRepo->getEntity(DataRepositoryInterface::BPMS_WORKFLOW, $state->meta_value);
                 $starts = $this->dataRepo->findEntities(DataRepositoryInterface::BPMS_STATE, ['position_state' => ProcessLogicInterface::POSITION_START, 'ws_pro_id' => $workflow->id]);
-                $startId = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $start, 'ws_pro_id' => $workflow->id])->id;
+                if ($foundState = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_STATE, ['wid' => $start, 'ws_pro_id' => $workflow->id]))
+                    $startId = -$foundState > id;
             }
         }
         return ['case' => $case, 'start' => $startId, 'workflow' => $workflow, 'starts' => $starts];
@@ -968,13 +968,13 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         $foundPart = $this->findWorkflowPart(['transition_id' => $tid]);
         if (!$foundPart) {
             $vars = $this->caseService->getCaseOption('vars');
-            $this->createCase(['vars' => $vars, 'transition_id' => $tid, 'parent_case' => $this->getCaseId(), 'user' => static::PART_CASE, 'ws_pro_id' => $this->getWID(), 'start' => $from, 'system_options' => ['parent_case' => $this->getCaseId(), 'base_case' => $this->getParentCase()]]);
+            $this->createCase(['vars' => $vars, 'transition_id' => $tid, 'parent_case' => $this->getCaseId(), 'user' => static::PART_CASE, 'ws_pro_id' => $this->getWID(), 'start' => $from, 'system_options' => ['parent_case' => $this->getCaseId(), 'base_case' => $this->getBaseCase()]]);
         }
     }
 
     public function findWorkflowPart($predicate)
     {
-        $predicate = array_merge($predicate, ['user_creator' => static::PART_CASE, 'cid' => $this->baseCase]); //important to search in parent cases
+        $predicate = array_merge($predicate, ['user_creator' => static::PART_CASE, 'parent_case' => $this->id]); //important to search in parent cases
         return $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_CASE, $predicate);
     }
 
@@ -1134,7 +1134,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         if ($option == 'forms') {
             if (isset($opts['forms'])) {
                 $ids = array_column($opts['forms'], 'id');
-                $found_key = array_search($data['id'], $ids);
+                $found_key = array_search($data['id'] ?? 0, $ids);
                 if ($found_key !== false) {
                     $opts['forms'][$found_key] = $data;
                 } else {
@@ -1199,7 +1199,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             $data['options'] = $opts;
         }
 
-        if ($type == ProcessLogicInterface::WORKFLOW_ENDED || $type == ProcessLogicInterface::WORKFLOW_SUBPROCESS) {
+        if ($type == ProcessLogicInterface::WORKFLOW_ENDED || $type == ProcessLogicInterface::WORKFLOW_SUBPROCESS || $type == ProcessLogicInterface::WORKFLOW_PART_CREATED) {
             $data['finished_at'] = date("Y-m-d H:i:s");
             $data['user_id'] = $user_from;
             $data['options->user_name'] = $this->user_name;
@@ -1207,7 +1207,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
         if ($last) {
             $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_ACTIVITY, ['id' => $last], ['finished_at' => date("Y-m-d H:i:s"), 'user_id' => $user_from, 'options->user_name' => $this->user_name], true);
-            if ($type == ProcessLogicInterface::WORKFLOW_SUBPROCESS)
+            if ($type == ProcessLogicInterface::WORKFLOW_SUBPROCESS || $type == ProcessLogicInterface::WORKFLOW_PART_CREATED)
                 return;
         }
 
@@ -1259,7 +1259,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
                     'end_date' => $activity->finished_at,
                     'comment' => $activity->comment,
                     'duration' => Carbon::parse($activity->finished_at)->diffInSeconds(Carbon::parse($activity->created_at)),
-                    'status' => $activity->type == ProcessLogicInterface::WORKFLOW_CHANGE_USER ? 'تغییر کاربر' : $activity->finished_at ? 'تکمیل شده' : 'در حال انجام',
+                    'status' => $activity->type == ProcessLogicInterface::WORKFLOW_CHANGE_USER ? 'تغییر کاربر' : ($activity->finished_at ? 'تکمیل شده' : 'در حال انجام'),
                     'options' => $activity->options ?? []
                 ];
 
@@ -1485,6 +1485,9 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             case ProcessLogicInterface::WORKFLOW_PAUSED:
                 return ['status' => 'error', 'type' => static::NEXT_ERROR, 'message' => 'WORKFLOW_PAUSED'];
 
+                // case ProcessLogicInterface::WORKFLOW_PART_CREATED:
+                //     return ['status' => 'parted', 'type' => static::NEXT_NEXT];
+
             default:
         }
 
@@ -1555,7 +1558,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             return $this->saveChanges(ProcessLogicInterface::WORKFLOW_IN_PART_MODE, false);
 
 
-        else if ($this->status == "paused")
+        else if ($this->status == "paused" && $this->metaReq != 0)
             return $this->saveChanges(ProcessLogicInterface::WORKFLOW_PAUSED, false);
 
         else if ($this->status == "sequential") {
@@ -1778,18 +1781,21 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         $logic = app()->make(ProcessLogic::class);
 
         foreach ($cases as $case) {
-            $input = ['metaReq' => 0, 'nextPreview' => false];
+            $input = ['metaReq' => 0, 'preview' => false];
             $foundCase = BpmsCase::find($case->case_id);
-            if ($case->base_state_wid == $case->state_wid && $foundCase->state == $case->state_wid) {
+            if ($case->base_state_wid == $case->state_wid && $foundCase->state == $case->state_wid) { //timers
                 $logic->setCaseById($case->case_id);
                 $res = $logic->goNext($input);
                 if ($res['status'] == 'error') {
                     $foundCase->status = 'error';
                     $foundCase->save();
                     continue;
-                } else
+                } else {
+                    $foundCase->status = 'working';
+                    $foundCase->save();
                     $case->delete();
-            } else if ($foundCase->state == $case->base_state_wid) {
+                }
+            } else if ($foundCase->state == $case->base_state_wid) { //badges
                 $logic->setCaseById($case->case_id);
                 $logic->setCurrentState($case->state_wid);
                 $res = $logic->goNext($input);
@@ -1845,7 +1851,8 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
         if ($this->isEligible($metaReq, $typeReq, $stateReq)) {
             if ($vars && !$this->test) {
-                $this->caseService->setCaseOption('vars', $vars);
+                $updatedCase = $this->caseService->setCaseOption('vars', $vars);
+                $this->vars = $updatedCase->options['vars'];
             }
 
             if ($form && !$this->test && $this->state) {
