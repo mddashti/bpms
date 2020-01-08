@@ -33,9 +33,9 @@ class CaseController
         return $this->logic->checkForTimer();
     }
 
-    public function next()
+    public function next(Request $request)
     {
-        $input = ['metaReq' => 1, 'preview' => false, 'vars' => array('A' => 1, 'B' => 2, 'C' => 3), 'form' => 1];
+        $input = ['metaReq' => 1, 'preview' => $request->preview, 'vars' => array('A' => 1, 'B' => 2, 'C' => 3), 'form' => 1];
         return $this->logic->goNext($input);
     }
 
@@ -150,7 +150,8 @@ class CaseController
     }
 
     public function edit(BpmsCase $case)
-    { }
+    {
+    }
 
     public function update(Request $request, $id)
     {

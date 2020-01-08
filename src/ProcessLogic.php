@@ -100,6 +100,8 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
     protected $lastMeta = null;
 
+    protected $isChangedStatus = false;
+
 
     #endregion
 
@@ -132,6 +134,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         $this->caseService->setCase($case);
         $this->formService->setCase($case);
         $this->baseCase = $case->cid; //base case of case!
+        $this->vars = $case->options['vars'];
     }
 
     public function setCaseById($caseId, $baseTable = false)
@@ -447,6 +450,13 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             if ($meta->isSuccess) {
                 $workflowId = $meta->entity['workflow'];
                 $startState = $meta->entity['start'];
+
+                if (!$workflowId || !$startState) {
+                    $this->setEvent(ProcessLogicInterface::WORKFLOW_EXCEPTION, 'SUBPROCESS_CREATE_ERROR');
+                    return;
+                }
+
+
                 $vars = $this->caseService->getCaseOption('vars');
 
                 if ($workflowId) {
@@ -458,10 +468,11 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             return;
         } else if ($currentState->loop == "bpmn:MultiSeqInstanceLoopCharacteristics") {
             $this->status = 'sequential';
+            $this->isChangedStatus = true;
         }
 
-        if ($this->test)
-            return;
+        // if ($this->test)
+        //     return;
         //Next user checks
         $userId = $user > 0 ? $user : $this->getNextUserByType($currentState, true);            //user just used in start!
 
@@ -618,7 +629,7 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
 
         $isNextPossible =  $this->checkCondition($condition, $this->vars);
 
-        if (!$isNextPossible)
+        if (!$isNextPossible && !$this->isChangedStatus)
             return 0;
 
         if ($this->getLastMeta()->element_name != $state->wid)
@@ -687,9 +698,6 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         $result = [];
         foreach ($tis as $t) {
             if ($vars && $tis->count() > 1) {
-
-                //when gate is parallel ???????
-                //subprocess
                 if ($this->gateService->checkCondition($t->meta, $vars) === false) {
                     continue;
                 }
@@ -697,6 +705,13 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             $state = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_STATE, ['ws_pro_id' => $this->wid, 'wid' => $t->to_state]);
             if ($state->type == "bpmn:SubProcess")
                 $state = $this->findSubprocessFirstState($t->to_state);
+            if ($this->status == 'sequential') {
+                $currentState = $this->dataRepo->findEntity(DataRepositoryInterface::BPMS_STATE, ['ws_pro_id' => $this->wid, 'wid' => $t->from_state]);
+                if ($this->findNextSequentialUser($currentState))
+                    $state = $currentState;
+            }
+
+
             $result[] = ['is_position' => $this->isPositionBased($state), 'next_type' => $state->meta_type, 'next_work' => $state->text, 'next_user' => $this->getNextUserByType($state)];
         }
         if (!isset($result))
