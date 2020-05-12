@@ -2,18 +2,8 @@
 
 namespace Niyam\Bpms\Model;
 
-use Illuminate\Database\Eloquent\Model;
-
-class BpmsElement extends Model
+class BpmsElement extends BpmsBaseModel
 {
-    protected $guarded = ['id'];
-    //protected $table = 'bpms.bpms_elements';
-
-
-    protected $casts = [
-        'options' => 'array',
-    ];
-
     public function form()
     {
         return $this->belongsTo(BpmsForm::class, 'form_id');
@@ -28,6 +18,4 @@ class BpmsElement extends Model
     {
         return $this->hasMany(BpmsElementTrigger::class, 'element_id');
     }
-
-    
 }

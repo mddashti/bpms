@@ -1,4 +1,6 @@
-<?php namespace Niyam\Bpms\Service;
+<?php
+
+namespace Niyam\Bpms\Service;
 
 use Niyam\Bpms\Data\BaseService;
 use Niyam\Bpms\Model\BpmsForm;
@@ -65,6 +67,9 @@ class FormService extends BaseService
     {
         $state = $this->findEntity(static::BPMS_STATE, ['wid' => $stateWID]);
 
+        if (!$this->isFormBased($state))
+            return null;
+
         if (!$state)
             return new ProcessResponse(false, null, 'WORKFLOW_NO_STATE', 1);
 
@@ -77,6 +82,7 @@ class FormService extends BaseService
         if (!$forms) {
             return new ProcessResponse(false, null, 'WORKFLOW_NO_FORM', 3);
         }
+
 
         $vars = $this->caseService->getCaseOption('vars', null, $this->cid);
 
@@ -93,7 +99,6 @@ class FormService extends BaseService
         }
 
         $meta = BpmsMeta::where(['element_name' => $stateWID, 'case_id' => $this->cid])->first();
-        // if (!$meta || $this->state_first_access || !isset($meta->options['forms']))
         if (!$meta || !isset($meta->options['forms']))
             return new ProcessResponse(true, $candidateForm, 5);
         else {

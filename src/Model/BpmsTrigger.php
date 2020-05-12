@@ -2,21 +2,11 @@
 
 namespace Niyam\Bpms\Model;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-
-class BpmsTrigger extends Model
+class BpmsTrigger extends BpmsBaseModel
 {
     use SoftDeletes;
-
-    protected $guarded = ['id'];
-    //protected $table = 'bpms.bpms_triggers';
-
-    
-    protected $casts = [
-        'options' => 'array',
-    ];
 
     public function workflow()
     {

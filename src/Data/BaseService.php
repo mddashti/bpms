@@ -210,6 +210,11 @@ class BaseService implements DataRepositoryInterface
         return $position - 1;
     }
 
+    public function giveCustomUsers($case, $state)
+    {
+        return [1,2,3];
+    }
+
     public function giveParentPosition($position, $currentUser = null)
     {
     }
@@ -217,5 +222,15 @@ class BaseService implements DataRepositoryInterface
     public function isPositionBased($state)
     {
         return $state->meta_user == 1;
+    }
+
+    public function isNotUserBased($state)
+    {
+        return $state->meta_user > 0;
+    }
+
+    public function isFormBased($state)
+    {
+        return $state->type == 'bpmn:Task';
     }
 }

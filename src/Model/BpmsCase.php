@@ -2,24 +2,16 @@
 
 namespace Niyam\Bpms\Model;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class BpmsCase extends Model
+class BpmsCase extends BpmsBaseModel
 {
     use SoftDeletes;
-    protected $guarded = ['id'];
-    //protected $table = 'bpms.bpms_cases';
 
     protected $casts = [
         'options' => 'array',
         'system_options' => 'array',
     ];
-
-    public function parts()
-    {
-        return $this->hasMany(BpmsCasePart::class, 'case_id');
-    }
 
     public function workflow()
     {

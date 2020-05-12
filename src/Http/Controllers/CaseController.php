@@ -33,8 +33,10 @@ class CaseController
         return $this->logic->checkForTimer();
     }
 
-    public function next(Request $request)
+    public function next(Request $request, BpmsCase $case)
     {
+        if ($request->user)
+            return $this->logic->getStatus(['user' => $request->user, 'state' => $case->state]);
         $input = ['metaReq' => 1, 'preview' => $request->preview, 'vars' => array('A' => 1, 'B' => 2, 'C' => 3), 'form' => 1];
         return $this->logic->goNext($input);
     }
@@ -44,16 +46,6 @@ class CaseController
         return BpmsCase::with('workflow')->get();
         $userId = $request->user()->id;
         return $this->caseRepo->getUserCases($userId);
-    }
-
-    public function getSubprocessMeta(BpmsCase $case, $state)
-    {
-        return $this->logic->getSubprocessMetaCase($case, $state);
-    }
-
-    public function create()
-    {
-        //
     }
 
     public function store(Request $request)
@@ -69,12 +61,6 @@ class CaseController
         return $this->logic->createCase(['ws_pro_id' => $workflowId, 'user' => $userId, 'title' => $title, 'vars' => ['A' => 1, 'B' => 2]]);
     }
 
-    public function getCaseUser(BpmsCase $case, Request $request)
-    {
-        $state = $request->state;
-        return $this->logic->getStateMeta($state);
-    }
-
     public function getCaseCondition(BpmsCase $case, Request $request, $gate)
     {
         $workflow = BpmsWorkflow::findorFail($case->ws_pro_id);
@@ -85,43 +71,42 @@ class CaseController
         return $res;
     }
 
-    public function postCaseCondition(BpmsCase $case, Request $request, $gate)
-    {
-        $workflow = BpmsWorkflow::findorFail($case->ws_pro_id);
+    // public function postCaseCondition(BpmsCase $case, Request $request, $gate)
+    // {
+    //     $workflow = BpmsWorkflow::findorFail($case->ws_pro_id);
 
-        foreach ($request->data as $condition) {
-            foreach ($condition['from'] as $from) {
-                $to = $condition['to'];
-                $meta = $condition['condition'];
-                $order = $condition['order'];
-                $workflow_id = $workflow->id;
+    //     foreach ($request->data as $condition) {
+    //         foreach ($condition['from'] as $from) {
+    //             $to = $condition['to'];
+    //             $meta = $condition['condition'];
+    //             $order = $condition['order'];
+    //             $workflow_id = $workflow->id;
 
-                $data = ['order' => $order, 'from' => $from, 'to' => $to, 'meta' => $meta, 'gate' => $gate];
-                $this->logic->setTransitionMeta($data);
-            }
-        }
-    }
+    //             $data = ['order' => $order, 'from' => $from, 'to' => $to, 'meta' => $meta, 'gate' => $gate];
+    //             $this->logic->setTransitionMeta($data);
+    //         }
+    //     }
+    // }
 
-    public function postCaseUser(BpmsCase $case, Request $request)
-    {
-        $user = $request->user();
-        $metaValue = $request->value;
-        $metaType = $request->type;
-        $metaName = $request->name;
-        $metaBack = $request->back;
-        $state = $request->state;
+    // public function postCaseUser(BpmsCase $case, Request $request)
+    // {
+    //     $user = $request->user();
+    //     $metaValue = $request->value;
+    //     $metaType = $request->type;
+    //     $metaName = $request->name;
+    //     $metaBack = $request->back;
+    //     $state = $request->state;
 
-        $data = ['type' => $metaType, 'value' => $metaValue, 'name' => $metaName, 'back' => $metaBack, 'form' => 1];
+    //     $data = ['type' => $metaType, 'value' => $metaValue, 'name' => $metaName, 'back' => $metaBack, 'form' => 1];
 
-        $this->logic->setStateMeta($state, $data);
+    //     $this->logic->setStateMeta($state, $data);
 
-        return ['type' => 'success', 'message' => 'Meta has been added.'];
-    }
+    //     return ['type' => 'success', 'message' => 'Meta has been added.'];
+    // }
 
 
     public function testMeDude(BpmsCase $case, Request $request)
     {
-        return $users = App\User::paginate(15);
         return $this->logic->getStatus(['user' => 1, 'state' => 'Task_1wguegx']);
     }
 
@@ -166,14 +151,16 @@ class CaseController
 
     public function goBackParted(Request $request, BpmsCase $case)
     {
-        $part = $case->parts()->where('state', $request->src)->first();
-        $part->state = $request->dest;
-        $part->save();
+        abort(501);
+        // $part = $case->parts()->where('state', $request->src)->first();
+        // $part->state = $request->dest;
+        // $part->save();
     }
 
     public function getParts(BpmsCase $case)
     {
-        $case->parts()->get(['id', 'state']);
+        abort(501);
+        //$case->parts()->get(['id', 'state']);
     }
 
     public function destroy(BpmsCase $case)

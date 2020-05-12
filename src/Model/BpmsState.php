@@ -2,28 +2,13 @@
 
 namespace Niyam\Bpms\Model;
 
-use Illuminate\Database\Eloquent\Model;
-
-class BpmsState extends Model
+class BpmsState extends BpmsBaseModel
 {
-    protected $guarded = ['id'];
-    //protected $table = 'bpms.bpms_states';
-
-     
-    protected $visible = ['id','wid','text','ws_pro_id', 'workflow','type','is_position'];
-     
-    protected $casts = [
-        'options' => 'array',
-    ];
+    protected $visible = ['id', 'wid', 'text', 'ws_pro_id', 'workflow', 'type', 'is_position'];
 
     public function workflow()
     {
         return $this->belongsTo(BpmsWorkflow::class, 'ws_pro_id');
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(App\User::class);
     }
 
     public function stateConfigs()

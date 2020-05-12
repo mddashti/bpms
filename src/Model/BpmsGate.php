@@ -2,17 +2,8 @@
 
 namespace Niyam\Bpms\Model;
 
-use Illuminate\Database\Eloquent\Model;
-
-class BpmsGate extends Model
+class BpmsGate extends BpmsBaseModel
 {
-    protected $guarded = ['id'];
-    //protected $table = 'bpms.bpms_gates';
-
-    protected $casts = [
-        'options' => 'array',
-    ];
-    
     public function workflow()
     {
         return $this->belongsTo(BpmsWorkflow::class);

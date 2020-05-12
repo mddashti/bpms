@@ -2,12 +2,9 @@
 
 namespace Niyam\Bpms\Model;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-
-class BpmsTimer extends Model
+class BpmsTimer extends BpmsBaseModel
 {
     use SoftDeletes;
-    protected $guarded = ['id'];
 }

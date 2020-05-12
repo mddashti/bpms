@@ -2,13 +2,8 @@
 
 namespace Niyam\Bpms\Model;
 
-use Illuminate\Database\Eloquent\Model;
-
-class BpmsType extends Model
+class BpmsType extends BpmsBaseModel
 {
-    protected $guarded = ['id'];
-    //protected $table = 'bpms.bpms_types';
-
     protected $visible = ['id','name'];
 
     public function workflows()

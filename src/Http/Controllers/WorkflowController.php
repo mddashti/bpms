@@ -168,7 +168,7 @@ class WorkflowController
 
     public function getNext(BpmsWorkflow $workflow, Request $request, $form)
     {
-        \Debugbar::startMeasure('render', 'WORKFLOW_NEXT');
+        //\Debugbar::startMeasure('render', 'WORKFLOW_NEXT');
 
         if (!$workflow->is_parsed)
             return ['state' => 'error', 'message' => 'Please parse it first!'];
@@ -178,16 +178,16 @@ class WorkflowController
         $form = $form != 0 ? ['id' => $form, 'content' => 'jsonjsonjson'] : null;
         $input = ['metaReq' => 1, 'nextPreview' => false, 'vars' => array('A' => 1, 'B' => 2, 'C' => 3), 'form' => $form];
         $res = $this->logic->goNext($input);
-        \Debugbar::stopMeasure('render');
+        //\Debugbar::stopMeasure('render');
 
         return $res;
     }
 
-    public function getNextStep(BpmsWorkflow $workflow, $state)
-    {
-        $this->logic->setWorkflow($workflow);
-        return $this->logic->getNextStep($state, array('A' => 1, 'B' => 2, 'C' => 3));
-    }
+    // public function getNextStep(BpmsWorkflow $workflow, $state)
+    // {
+    //     $this->logic->setWorkflow($workflow);
+    //     return $this->logic->getNextStep($state, array('A' => 1, 'B' => 2, 'C' => 3));
+    // }
 
     public function postWorkflowparse(BpmsWorkflow $workflow, Request $request)
     {

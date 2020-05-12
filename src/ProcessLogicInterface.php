@@ -90,7 +90,9 @@ interface ProcessLogicInterface
         WORKFLOW_CHANGE_USER = 28,
         WORKFLOW_SUBPROCESS = 29,
         WORKFLOW_IS_IN_SUBPROCESS = 30,
-        WORKFLOW_IN_PART_MODE = 31;
+        WORKFLOW_IN_PART_MODE = 31,
+        WORKFLOW_IN_COMMON_MODE = 32;
+
 
 
     public function setCase($case, $baseTable = false);
@@ -164,8 +166,6 @@ interface ProcessLogicInterface
     public function getBaseState();
 
     public function saveChanges($type, $changed = true);
-
-    public function saveWorkflow();
 
     public function saveCase();
 

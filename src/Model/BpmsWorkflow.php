@@ -2,18 +2,8 @@
 
 namespace Niyam\Bpms\Model;
 
-use Illuminate\Database\Eloquent\Model;
-
-class BpmsWorkflow extends Model
+class BpmsWorkflow extends BpmsBaseModel
 {
-    protected $guarded = ['id'];
-    //protected $table = 'bpms.bpms_workflows';
-
-    // protected $visible = ['id','name','wid','type','description','niyam'];
-    protected $casts = [
-        'options' => 'array',
-    ];
-
     public function getRouteKeyName()
     {
         return 'wid';
@@ -27,11 +17,6 @@ class BpmsWorkflow extends Model
     public function states()
     {
         return $this->hasMany(BpmsState::class, 'ws_pro_id');
-    }
-
-    public function parts()
-    {
-        return $this->hasMany(BpmsPart::class, 'ws_pro_id');
     }
 
     public function gates()
