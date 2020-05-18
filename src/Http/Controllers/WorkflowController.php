@@ -11,6 +11,7 @@ use Niyam\Bpms\Model\BpmsState;
 use Niyam\Bpms\Service\WorkflowService;
 use Niyam\Bpms\Service\GateService;
 use Niyam\Bpms\Service\StateService;
+use Illuminate\Support\Str;
 
 
 class WorkflowController
@@ -38,7 +39,7 @@ class WorkflowController
     public function getWorkflows(Request $request)
     {
         // return Cache::remember('active-workflows', 5, function () {
-            return $this->wservice->getWorkflows();
+        return $this->wservice->getWorkflows();
         // });
     }
 
@@ -232,7 +233,7 @@ class WorkflowController
         $newType = $request->input('newtype');
         $type = $request->input('type');
         $title = $request->input('name');
-        $wid = str_random(8);
+        $wid = Str::random(8);
         //1 for workspace
 
         $this->logic->createWorkflow([
