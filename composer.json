@@ -29,6 +29,5 @@
                 "Niyam\\Bpms\\BpmsServiceProvider"
             ]
         }
-    },
-    "minimum-stability": "dev"
+    }
 }
