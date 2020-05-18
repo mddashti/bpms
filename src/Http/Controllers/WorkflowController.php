@@ -15,7 +15,7 @@ use Niyam\Bpms\Service\StateService;
 
 class WorkflowController
 {
-    private $logic;
+    protected $logic;
     protected $ldap;
     protected $wservice;
     protected $gservice;
