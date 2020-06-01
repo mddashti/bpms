@@ -17,6 +17,28 @@ class FormService extends BaseService
         $this->caseService = $caseService;
     }
     #region Forms
+
+    /**
+     * Add or update created form
+     * 
+     * @param array
+     * @return \Collection
+     */
+    public function updateOrCreateForm(array $formData)
+    {
+        return BpmsForm::updateOrCreate(
+            [
+                'slug' => $formData['slug']
+            ],
+            [
+                'title' => $formData['title'],
+                'description' => $formData['description'],
+                'ws_pro_id' => $formData['ws_pro_id'],
+                'options' => $formData['options']
+            ]
+        );
+    }
+    
     public function getForms($predicate = null, $columns = '*')
     {
         if (!$predicate)
