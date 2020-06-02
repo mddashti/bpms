@@ -19,6 +19,55 @@ class FormService extends BaseService
     #region Forms
 
     /**
+     * Delete form
+     * 
+     * @param int $formID
+     * @return void
+     */
+    public function deleteForm(int $formID)
+    {
+        BpmsForm::where('id', $formID)->delete();
+    }
+
+    /**
+     * Update form
+     * 
+     * @param int $formID
+     * @param array $formData
+     * @return void
+     */
+    public function updateForm(int $formID, array $formData)
+    {
+        BpmsForm::where('id', $formID)->update([
+            'title' => $formData['title'],
+            'description' => $formData['description'],
+            'options' => $formData['options'],
+            'slug' => $formData['slug'],
+            'ws_pro_id' => $formData['ws_pro_id'],
+        ]);
+    }
+
+    /**
+     * Create forms 
+     * 
+     * @param $forms
+     * @return void
+     */
+    public function createForms(array $forms)
+    {
+        foreach ($forms as $form) {
+            BpmsForm::firstOrCreate([
+                'slug' => $form['slug'],
+                'ws_pro_id' => $form['ws_pro_id'],
+            ], [
+                'title' => $form['title'],
+                'description' => $form['description'],
+                'options' => $form['options']
+            ]);
+        }
+    }
+
+    /**
      * Add or update created form
      * 
      * @param array
@@ -41,7 +90,7 @@ class FormService extends BaseService
     
     public function getForms($predicate = null, $columns = '*')
     {
-        if (!$predicate)
+        if (!$predicate && $this->wid)
             return BpmsForm::where('ws_pro_id', $this->wid)->get($columns);
 
         if ($this->wid && !isset($predicate['ws_pro_id'])) {
