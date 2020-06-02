@@ -98,6 +98,22 @@ class StateService extends BaseService
         }
     }
 
+    /**
+     * Set forms info on BPMSState table
+     * 
+     * @param string $stateWID
+     * @param array $data
+     * @return void
+     */
+    public function setStateForms($stateWID, $workflowID, $data)
+    {
+        BpmsState::updateOrCreate([
+            'wid' => $stateWID, 'ws_pro_id' => $workflowID
+        ], [
+            'options' => $data
+        ]);
+    }
+
     public function setStateMeta($stateWID, $data)
     {
         $state = $this->findEntity(static::BPMS_STATE, ['wid' => $stateWID, 'ws_pro_id' => $this->wid]);
