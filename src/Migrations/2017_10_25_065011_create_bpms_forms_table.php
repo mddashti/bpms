@@ -16,7 +16,7 @@ class CreateBpmsFormsTable extends Migration
         Schema::create('bpms_forms', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('ws_pro_id')->nullable();
-            $table->string('title')->unique();
+            $table->string('title');
             $table->string('description')->nullable();
             $table->string('slug')->nullable();
             $table->text('content_html')->nullable();
