@@ -70,6 +70,19 @@ class FormService extends BaseService
     }
 
     /**
+     * Find forms
+     * 
+     * @param mixed $forms
+     * @return \Collection
+     */
+    public function findForms($forms)
+    {
+        if (is_array($forms))
+            return BpmsForm::whereIn('id', $forms)->get();
+        return BpmsForm::where('id', $forms)->get();
+    }
+
+    /**
      * Add or update created form
      * 
      * @param array
