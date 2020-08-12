@@ -28,8 +28,8 @@ class WorkflowController
         $this->wservice = $wservice;
         $this->gservice = $gservice;
         $this->sservice = $sservice;
-        //$this->ldap = $ldap;
     }
+
     public function index(Request $request)
     {
         return view('workflow.index');
@@ -96,9 +96,6 @@ class WorkflowController
         $metaSuccessor = $request->has_successor;
         $condition = $request->condition;
 
-
-
-
         if ($metaType != 7 && $metaType != 9 && $metaType != 12) {
             $metaValuePure = array_map('intval', explode(',', $request->users));
         } else
@@ -124,7 +121,7 @@ class WorkflowController
         return ['type' => 'success', 'message' => 'Meta has been added.'];
     }
 
-    public function postWorkflowdata(BpmsWorkflow $workflow, Request $request)
+    public function postWorkflowdata(BpmsWorkflow $workflow)
     {
         $workflow->wxml = $request->xml;
         $workflow->wsvg = $request->svg;
@@ -157,12 +154,6 @@ class WorkflowController
 
         return $res;
     }
-
-    // public function getNextStep(BpmsWorkflow $workflow, $state)
-    // {
-    //     $this->logic->setWorkflow($workflow);
-    //     return $this->logic->getNextStep($state, array('A' => 1, 'B' => 2, 'C' => 3));
-    // }
 
     public function postWorkflowparse(BpmsWorkflow $workflow, Request $request)
     {
@@ -240,11 +231,6 @@ class WorkflowController
     public function edit($wid)
     {
         return view('workflow.edit')->with('wid', $wid);
-    }
-
-    public function update(Request $request, BpmsWorkflow $workflow)
-    {
-        //
     }
 
     public function destroy(BpmsWorkflow $workflow)

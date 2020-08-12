@@ -1223,20 +1223,11 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             $formData = $this->formService->getFirstFormOfState($this->state);
 
             if ($formData) {
-                if (!$formData->isSuccess) {
-                    // $data['type'] = ProcessLogicInterface::NEXT_ERROR;
-                    // $data['status'] = "error";
-                    // $data['message'] = $formData->message;
-                    // return $data;
+                if (!$formData->isSuccess)
                     return ['type' => ProcessLogicInterface::NEXT_ERROR, 'status' => "error", 'message' => $formData->message];
-                }
 
-                if ($formData->isSuccess && $formData->code == 2) {
-                    // $data['type'] = ProcessLogicInterface::NEXT_NEXT;
-                    // $data['status'] = "working";
-                    // return $data;
+                if ($formData->isSuccess && $formData->code == 2)
                     return ['type' => ProcessLogicInterface::NEXT_NEXT, 'status' => "working"];
-                }
 
                 $data['form'] = $formData->entity;
             }
@@ -1249,7 +1240,8 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
             $data['vars'] = isset($res) ? array_replace_recursive($case_vars, $res) : null;
         }
         $stateWID = $data['state'];
-        $currentStateText = BpmsState::where('wid', $stateWID)->first()->text;
+        if ($stateWID)
+            $currentStateText = BpmsState::where('wid', $stateWID)->first()->text;
 
         if (isset($data['form'])) {
             $formId = $data['form']['id'];
@@ -1267,9 +1259,8 @@ class ProcessLogic extends BaseService implements ProcessLogicInterface
         $user = $inputArray['user'] ?? null;
         $state = $inputArray['state'] ?? null;
 
-        if (!$user || !$state) {
+        if (!$user || !$state)
             return $this->dataRepo->updateEntity(DataRepositoryInterface::BPMS_CASE, ['id' => $this->id], ['seen' => true]);
-        }
 
         $s = $this->getCurrentState($state);
 
