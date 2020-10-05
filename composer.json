@@ -9,8 +9,6 @@
     }],
     "require": {
         "php": ">=7.2",
-        "illuminate/database": "6.*",
-        "illuminate/support": "6.*",
         "nesbot/carbon": "^2.19",
         "symfony/dom-crawler": "^3.3",
         "symfony/expression-language": "^3.3"
