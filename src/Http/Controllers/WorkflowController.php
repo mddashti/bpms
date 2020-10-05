@@ -121,7 +121,7 @@ class WorkflowController
         return ['type' => 'success', 'message' => 'Meta has been added.'];
     }
 
-    public function postWorkflowdata(BpmsWorkflow $workflow)
+    public function postWorkflowdata(BpmsWorkflow $workflow,Request $request)
     {
         $workflow->wxml = $request->xml;
         $workflow->wsvg = $request->svg;
