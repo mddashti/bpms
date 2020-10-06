@@ -57,8 +57,9 @@ class FormService extends BaseService
      */
     public function createForms(array $forms)
     {
+        $result = [];
         foreach ($forms as $form) {
-            BpmsForm::firstOrCreate([
+            $result[] = BpmsForm::firstOrCreate([
                 'slug' => $form['slug'],
                 'ws_pro_id' => $form['ws_pro_id'],
             ], [
@@ -67,6 +68,20 @@ class FormService extends BaseService
                 'options' => $form['options']
             ]);
         }
+        return $result;
+    }
+
+    /**
+     * Find forms
+     * 
+     * @param mixed $forms
+     * @return \Collection
+     */
+    public function findForms($forms)
+    {
+        if (is_array($forms))
+            return BpmsForm::whereIn('id', $forms)->get();
+        return BpmsForm::where('id', $forms)->get();
     }
 
     /**
